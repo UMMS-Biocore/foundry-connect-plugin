@@ -20,13 +20,12 @@ If `canvasId`/`canvasID` isn't already known from context, ask the user rather t
 
 **"Save these two CSVs into a new dataset"**
 
-1. Confirm the whole action up front, since it's one described intent: *"I'll create a new vmeta
-   dataset called `<name>` and add `file1.csv` and `file2.csv` to it — proceed?"*
+1. Confirm: *"I'll create a new vmeta dataset called `<name>` — proceed?"*
 2. `create_vmeta_dataset(name="<name>")` → note the returned `_id`.
-3. `add_files_to_dataset(dataset_id="<_id>", file_data={"canvasId": "<canvas id>", "file": {"name": "file1.csv", ...}})`
-4. `add_files_to_dataset(dataset_id="<_id>", file_data={"canvasId": "<canvas id>", "file": {"name": "file2.csv", ...}})`
+3. Confirm: *"I'll add `file1.csv` to dataset `<name>` — proceed?"*
+4. `add_files_to_dataset(dataset_id="<_id>", file_data={"canvasId": "<canvas id>", "file": {"name": "file1.csv", ...}})`
+5. Confirm: *"I'll add `file2.csv` to dataset `<name>` — proceed?"*
+6. `add_files_to_dataset(dataset_id="<_id>", file_data={"canvasId": "<canvas id>", "file": {"name": "file2.csv", ...}})`
 
-One upfront confirmation covers this because every call it authorizes was named in that
-confirmation. If the plan changes mid-flow — an extra file, a different dataset name because of a
-collision, a different target — stop and get a fresh confirmation before making that additional
-write.
+Each write gets its own confirmation immediately before it, even when several writes were
+described together in the same request — never reuse an earlier "yes" for a later call.

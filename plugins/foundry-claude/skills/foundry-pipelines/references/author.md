@@ -16,7 +16,7 @@ point to duplicating/launching an existing pipeline via `execute.md`).
 | `get_process_details(process_id)` | Full configuration for one process: scripts, parameters, metadata. |
 | `get_process_revisions(process_id)` | Version history for a process. |
 | `list_process_parameters()` | List all parameter definitions available system-wide (name, type, constraints) — check here before creating a new one. |
-| `get_process_parameters(name, qualifier, file_type, id)` | Filter parameter definitions by name/qualifier/file type/ID. |
+| `get_process_parameters(name, qualifier, file_type, id)` | Filter parameter definitions by name/qualifier/file type/ID. (`file_type` is this tool's own snake_case argument — not the same namespace as the `fileType` JSON field below.) |
 
 ## Write tools (confirm before each call)
 
@@ -37,11 +37,14 @@ point to duplicating/launching an existing pipeline via `execute.md`).
 **"Create a new process for trimming adapters"**
 → `list_process_parameters()` / `get_process_parameters(...)` to find reusable parameter
 definitions for inputs/outputs (e.g. an existing `reads`/fastq parameter).
-→ confirm: *"I'll build a process config named `<name>` using the script below, then register it
-as a new process — proceed?"* (state the script/summary being used)
+→ confirm: *"I'll build a process config named `<name>` using the script below — proceed?"*
+(state the script/summary being used)
 → `create_process_config(name="<name>", menu_group_name="<existing group>", script_body="<script>", input_params=[...], output_params=[...])`
+→ confirm: *"I'll register that config as a new process named `<name>` — proceed?"*
 → `create_process(process_data=<output of the previous call>)`
 
-As with `share-back.md`, one upfront confirmation can cover a described sequence of calls, but if
-the plan changes (e.g. a needed parameter doesn't exist and must be created via
-`create_process_parameter`), stop and confirm that additional write separately.
+As with `share-back.md`, each write gets its own confirmation immediately before it —
+`create_process_config` and `create_process` are two separate writes and each needs its own "yes,"
+even though both were described in the original request. If the plan changes (e.g. a needed
+parameter doesn't exist and must be created via `create_process_parameter`), stop and confirm that
+additional write too.
