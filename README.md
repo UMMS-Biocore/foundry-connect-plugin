@@ -18,15 +18,18 @@ and duplicate/launch pipeline runs — conversationally, from whichever Claude s
 
 ## Quickstart (~90 seconds, Claude Code)
 
-```bash
-claude plugin marketplace add UMMS-Biocore/foundry-claude
-claude plugin install foundry-claude@foundry-claude
-```
+1. Start a Claude Code session, then type these slash commands at the prompt (not in your
+   terminal):
 
-1. When prompted, enter your **ViaFoundry instance URL** (e.g. `https://foundry.your-org.edu`).
-2. First tool call opens a browser to sign in to ViaFoundry (OAuth) — no token to copy.
-3. Ask Claude: **"show my last 5 runs"**.
-4. Try your first run: **`/foundry-run`** — it duplicates an existing run, lets you edit inputs,
+   ```
+   /plugin marketplace add UMMS-Biocore/foundry-claude
+   /plugin install foundry-claude@foundry-claude
+   ```
+
+2. When prompted, enter your **ViaFoundry instance URL** (e.g. `https://foundry.your-org.edu`).
+3. First tool call opens a browser to sign in to ViaFoundry (OAuth) — no token to copy.
+4. Ask Claude: **"show my last 5 runs"**.
+5. Try your first run: **`/foundry-run`** — it duplicates an existing run, lets you edit inputs,
    and launches it, confirming with you before anything is written or executed.
 
 For claude.ai, Claude for Science, or Claude Desktop, see the connect guide for your surface in

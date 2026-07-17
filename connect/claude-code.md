@@ -6,9 +6,11 @@ tools.
 
 ## Option A: install the plugin (recommended)
 
-```bash
-claude plugin marketplace add UMMS-Biocore/foundry-claude
-claude plugin install foundry-claude@foundry-claude
+Inside a Claude Code session (type these at the Claude Code prompt, not in your terminal):
+
+```
+/plugin marketplace add UMMS-Biocore/foundry-claude
+/plugin install foundry-claude@foundry-claude
 ```
 
 Claude will prompt for your **ViaFoundry instance URL** (e.g. `https://foundry.your-org.edu`, no
