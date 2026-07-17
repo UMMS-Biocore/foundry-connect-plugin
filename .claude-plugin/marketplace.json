@@ -1,0 +1,11 @@
+{
+  "name": "foundry-claude",
+  "owner": { "name": "UMMS Biocore — ViaFoundry" },
+  "plugins": [
+    {
+      "name": "foundry-claude",
+      "source": "./plugins/foundry-claude",
+      "description": "Drive the ViaFoundry pipeline lifecycle conversationally from Claude — explore runs, access data, share results, author/duplicate/execute pipelines, and launch apps."
+    }
+  ]
+}

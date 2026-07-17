@@ -1,0 +1,20 @@
+{
+  "name": "foundry-claude",
+  "version": "0.1.0",
+  "description": "ViaFoundry pipeline lifecycle in Claude: the foundry-pipelines skill + /foundry-* commands over the ViaFoundry remote MCP server.",
+  "author": { "name": "UMMS Biocore — ViaFoundry", "email": "alper.kucukural@umassmed.edu" },
+  "homepage": "https://github.com/UMMS-Biocore/foundry-claude",
+  "repository": "https://github.com/UMMS-Biocore/foundry-claude",
+  "license": "Apache-2.0",
+  "keywords": ["viafoundry", "bioinformatics", "pipelines", "mcp", "genomics"],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "mcpServers": "./.mcp.json",
+  "userConfig": {
+    "instance_url": {
+      "type": "string",
+      "title": "ViaFoundry instance URL",
+      "description": "Your ViaFoundry base URL, e.g. https://foundry.your-org.edu (no trailing slash)."
+    }
+  }
+}
