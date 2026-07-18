@@ -1,6 +1,6 @@
-# foundry-claude
+# foundry-connect
 
-`foundry-claude` connects [ViaFoundry](https://github.com/UMMS-Biocore/viafoundry) — the
+`foundry-connect` connects [ViaFoundry](https://github.com/UMMS-Biocore/viafoundry) — the
 bioinformatics pipeline platform — to Claude. It ships a Claude Code plugin (the
 `foundry-pipelines` skill plus `/foundry-run`, `/foundry-status`, `/foundry-results` commands) and
 per-surface connect guides for the web/desktop apps, all built on ViaFoundry's remote MCP server.
@@ -22,8 +22,8 @@ and duplicate/launch pipeline runs — conversationally, from whichever Claude s
    terminal):
 
    ```
-   /plugin marketplace add UMMS-Biocore/foundry-claude
-   /plugin install foundry-claude@foundry-claude
+   /plugin marketplace add UMMS-Biocore/foundry-connect
+   /plugin install foundry-connect@foundry-connect
    ```
 
 2. When prompted, enter your **ViaFoundry instance URL** (e.g. `https://foundry.your-org.edu`).

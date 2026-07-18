@@ -9,8 +9,8 @@ tools.
 Inside a Claude Code session (type these at the Claude Code prompt, not in your terminal):
 
 ```
-/plugin marketplace add UMMS-Biocore/foundry-claude
-/plugin install foundry-claude@foundry-claude
+/plugin marketplace add UMMS-Biocore/foundry-connect
+/plugin install foundry-connect@foundry-connect
 ```
 
 Claude will prompt for your **ViaFoundry instance URL** (e.g. `https://foundry.your-org.edu`, no
