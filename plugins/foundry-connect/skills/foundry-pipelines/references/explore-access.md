@@ -11,8 +11,9 @@ the ID you got back from `list_runs` / `get_run`.
 | Tool | Usage |
 | --- | --- |
 | `list_runs(search_query, take, skip, sort, order)` | List/search runs. Fuzzy-searches by name, paginated (`take`/`skip`), sorted (default `dateCreated desc`). Returns id, name, status, pipeline info, dates. Start here to find a run's ID. |
-| `get_run(run_id, run_name, include_reports)` | Get one run by ID, or by name with fuzzy matching if no exact match exists. Pass `include_reports=True` to also get its associated reports. |
-| `get_run_details(run_id)` | Get the run's full execution shape: `inputs[]`, `processOptions{}`, `permission`, `groupId`, `mainPipeline`. Useful context before an execute-flow (see `execute.md`), but itself just a read. |
+| `get_run(run_id, run_name, include_reports)` | Get one run by ID, or by name with fuzzy matching if no exact match exists. Includes a plain-language `status_display` ("Running"/"Completed"/"Failed"). Pass `include_reports=True` to also get its associated reports. |
+| `get_run_log(run_id, attempt_id)` | **The tool to reach for when a run failed.** Returns the tail of the most relevant execution log (`.command.err`/Nextflow) plus a plain-language summary — this is how you answer "why did it fail?". If logs haven't synced yet on a cluster run, it says so; try again shortly. |
+| `get_run_details(run_id, verbose=False)` | Default: a compact plain-language summary of the run's configuration (pipeline, samples, key settings) — good for "how was this run set up?". Pass **`verbose=True`** for the full execution shape (`inputs[]`, `processOptions{}`, `permission`, `groupId`, `mainPipeline`, `project`), which is what an execute-flow needs (see `execute.md`). Read-only either way. |
 | `list_processes(report_id)` | List the unique process (pipeline step) names that produced output in this run. |
 | `list_files(report_id, process_name)` | List files in the run, optionally filtered to one process/step. Returns paths, sizes, extensions. |
 | `get_report_dirs(report_id)` | List the directories in a report where files could be uploaded (used later by `share-back.md`'s `upload_file`). |
