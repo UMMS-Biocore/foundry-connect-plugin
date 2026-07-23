@@ -12,7 +12,7 @@ point to duplicating/launching an existing pipeline via `execute.md`).
 
 | Tool | Usage |
 | --- | --- |
-| `list_all_processes()` | List every process/pipeline in ViaFoundry — ID, name, summary, owner. |
+| `list_all_processes()` | List every process/pipeline in Foundry Connect — ID, name, summary, owner. |
 | `get_process_details(process_id)` | Full configuration for one process: scripts, parameters, metadata. |
 | `get_process_revisions(process_id)` | Version history for a process. |
 | `list_process_parameters()` | List all parameter definitions available system-wide (name, type, constraints) — check here before creating a new one. |
@@ -24,7 +24,7 @@ point to duplicating/launching an existing pipeline via `execute.md`).
 | --- | --- |
 | `duplicate_process(process_id)` | Clone an existing process so it can be modified independently of the original. |
 | `create_process_config(name, menu_group_name, script_body, input_params, output_params, summary, script_language, permission_settings, revision_comment)` | Build a complete process definition, ready to pass into `create_process`. `input_params`/`output_params` reference existing parameters by `name` + `qualifier` + `fileType` — look them up with `list_process_parameters`/`get_process_parameters` first. If no existing parameter matches, this call **creates a new one automatically**, so treat it as a write even though it "just" builds a config. `menu_group_name` must name an existing menu group. |
-| `create_process(process_data)` | Register a new process/pipeline step in ViaFoundry. `process_data` is normally the output of `create_process_config`. |
+| `create_process(process_data)` | Register a new process/pipeline step in Foundry Connect. `process_data` is normally the output of `create_process_config`. |
 | `create_process_parameter(parameter_data)` | Define a brand-new reusable parameter. Only do this when `list_process_parameters`/`get_process_parameters` show nothing suitable to reuse. |
 
 ## Worked examples

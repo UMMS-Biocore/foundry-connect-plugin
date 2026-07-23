@@ -1,20 +1,20 @@
 {
   "name": "foundry-connect",
   "version": "0.1.1",
-  "description": "ViaFoundry pipeline lifecycle in Claude: the foundry-pipelines skill + /foundry-* commands over the ViaFoundry remote MCP server.",
-  "author": { "name": "UMMS Biocore — ViaFoundry", "email": "alper.kucukural@umassmed.edu" },
+  "description": "Foundry Connect pipeline lifecycle in Claude: the foundry-pipelines skill + /foundry-* commands over the Foundry Connect remote MCP server.",
+  "author": { "name": "UMMS Biocore", "email": "alper.kucukural@umassmed.edu" },
   "homepage": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
   "repository": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
   "license": "Apache-2.0",
-  "keywords": ["viafoundry", "bioinformatics", "pipelines", "mcp", "genomics"],
+  "keywords": ["foundry-connect", "viafoundry", "bioinformatics", "pipelines", "mcp", "genomics"],
   "skills": "./skills/",
   "commands": "./commands/",
   "mcpServers": "./.mcp.json",
   "userConfig": {
     "instance_url": {
       "type": "string",
-      "title": "ViaFoundry instance URL",
-      "description": "Your ViaFoundry base URL, e.g. https://foundry.your-org.edu (no trailing slash)."
+      "title": "Foundry Connect instance URL",
+      "description": "Your Foundry Connect BASE URL only, e.g. https://foundry.your-org.edu — no trailing slash and no /mcp on the end (this plugin appends /mcp itself). Do not paste the connector URL from Profile → Connect to Claude; that one already ends in /mcp."
     }
   }
 }

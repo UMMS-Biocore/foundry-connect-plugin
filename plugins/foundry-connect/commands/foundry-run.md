@@ -1,5 +1,5 @@
 ---
-description: Duplicate a ViaFoundry run, edit its inputs, and launch it (with confirmation at each write).
+description: Duplicate a Foundry Connect run, edit its inputs, and launch it (with confirmation at each write).
 ---
 
 Use the `foundry-pipelines` skill's `references/execute.md` blueprint to duplicate the run the user

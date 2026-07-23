@@ -1,6 +1,6 @@
 # Share results back
 
-Purpose: push results (files, datasets, collections) back into ViaFoundry. **Every tool in this
+Purpose: push results (files, datasets, collections) back into Foundry Connect. **Every tool in this
 file is a write.** Per the skill's safety model, confirm each write with a one-line
 plain-language summary of exactly what will be created or changed *before* calling it — never
 chain writes on a single earlier "yes."

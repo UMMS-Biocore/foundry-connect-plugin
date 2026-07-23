@@ -16,7 +16,7 @@ well.
   prose; it's easier to scan and to spot outliers.
 - **Always cite the source** — name the exact `file_path` (and the run/report it came from) that
   the numbers are drawn from, so the user can trace any claim back to the file.
-- **Nothing here touches the ViaFoundry API.** This step is pure reasoning over data that
+- **Nothing here touches the Foundry Connect API.** This step is pure reasoning over data that
   `explore-access.md`'s tools already fetched into the conversation. If new data is needed, go back
   to `explore-access.md` (still read-only, still free).
 

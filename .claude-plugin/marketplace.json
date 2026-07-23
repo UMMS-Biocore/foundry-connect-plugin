@@ -1,12 +1,12 @@
 {
   "name": "foundry-connect",
-  "owner": { "name": "UMMS Biocore — ViaFoundry" },
-  "description": "Marketplace for the foundry-connect plugin — drive the ViaFoundry pipeline lifecycle conversationally from Claude over the ViaFoundry remote MCP server.",
+  "owner": { "name": "UMMS Biocore" },
+  "description": "Marketplace for the foundry-connect plugin — drive the Foundry Connect pipeline lifecycle conversationally from Claude over the Foundry Connect remote MCP server.",
   "plugins": [
     {
       "name": "foundry-connect",
       "source": "./plugins/foundry-connect",
-      "description": "Drive the ViaFoundry pipeline lifecycle conversationally from Claude — explore runs, access data, share results, author/duplicate/execute pipelines, and launch apps."
+      "description": "Drive the Foundry Connect pipeline lifecycle conversationally from Claude — explore runs, access data, share results, author/duplicate/execute pipelines, and launch apps."
     }
   ]
 }

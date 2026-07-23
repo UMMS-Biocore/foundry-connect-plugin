@@ -1,6 +1,6 @@
 # Explore & access runs
 
-Purpose: inspect pipeline runs and pull result data out of ViaFoundry so it can be reviewed or
+Purpose: inspect pipeline runs and pull result data out of Foundry Connect so it can be reviewed or
 analyzed in chat. Every tool below is **read-only** — no side effects, no confirmation needed.
 
 Note on IDs: a run's `report_id` is the same value as its run ID. Tools that say `report_id` accept
@@ -35,5 +35,5 @@ MultiQC file's path → `load_file(report_id="12345", file_path="<path found abo
 
 - To do something with the data you just loaded (summarize, compute stats, build a table), see
   `analyze.md` — no tool call needed, it's native reasoning in chat.
-- To save anything back into ViaFoundry (upload a file, create a dataset), that's a write — see
+- To save anything back into Foundry Connect (upload a file, create a dataset), that's a write — see
   `share-back.md` and confirm first.

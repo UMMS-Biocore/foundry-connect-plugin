@@ -1,6 +1,6 @@
 # Discover & launch apps
 
-Purpose: find interactive ViaFoundry apps (RStudio, JupyterLab, CellxGene, IGV, etc.) and launch
+Purpose: find interactive Foundry Connect apps (RStudio, JupyterLab, CellxGene, IGV, etc.) and launch
 one, returning a link the user can open.
 
 ## Tools
@@ -8,8 +8,8 @@ one, returning a link the user can open.
 | Tool | Read/Write | Usage |
 | --- | --- | --- |
 | `list_apps(search)` | Read | List available applications — ID, name, description, image/config. Pass `search` to filter by name. Use this first to find an app's ID. |
-| `discover_app_endpoints(search, as_json)` | Read | Advanced/debugging: search ViaFoundry's API endpoints by name, description, or path. Prefer `list_apps` for the common case of finding an app by name; reach for this only when `list_apps` doesn't surface what's needed. |
-| `launch_app(app_id, run_type, parameters)` | **Write/execute — confirm first** | Starts the app (launches compute/a session on the ViaFoundry backend). `run_type` defaults to `"standalone"`. Confirm with a one-line summary — e.g. *"I'll launch CellxGene now — proceed?"* — before calling. |
+| `discover_app_endpoints(search, as_json)` | Read | Advanced/debugging: search Foundry Connect's API endpoints by name, description, or path. Prefer `list_apps` for the common case of finding an app by name; reach for this only when `list_apps` doesn't surface what's needed. |
+| `launch_app(app_id, run_type, parameters)` | **Write/execute — confirm first** | Starts the app (launches compute/a session on the Foundry Connect backend). `run_type` defaults to `"standalone"`. Confirm with a one-line summary — e.g. *"I'll launch CellxGene now — proceed?"* — before calling. |
 
 ## Returning the link
 
@@ -21,7 +21,7 @@ live tool yet** — treat this as unconfirmed. In practice:
   or similar).
 - If one is clearly present, surface it directly as the app's link.
 - If the response doesn't obviously contain one, tell the user the app was launched successfully
-  and point them to the ViaFoundry Apps page to open it, rather than guessing at a field name.
+  and point them to the Foundry Connect Apps page to open it, rather than guessing at a field name.
 
 ## Worked example
 

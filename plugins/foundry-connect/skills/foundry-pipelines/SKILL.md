@@ -1,11 +1,11 @@
 ---
 name: foundry-pipelines
-description: Use when a user wants to work with ViaFoundry from Claude — explore or inspect runs, access/download result files, analyze data in chat, share results back, author or duplicate pipelines/processes, execute (launch) a run, or launch an app. Routes to task-specific references and enforces confirm-before-write safety.
+description: Use when a user wants to work with Foundry Connect from Claude — explore or inspect runs, access/download result files, analyze data in chat, share results back, author or duplicate pipelines/processes, execute (launch) a run, or launch an app. Routes to task-specific references and enforces confirm-before-write safety.
 ---
 
-# ViaFoundry pipelines
+# Foundry Connect pipelines
 
-Drive the ViaFoundry lifecycle through the `foundry` MCP server's tools. Works on every Claude
+Drive the Foundry Connect lifecycle through the `foundry` MCP server's tools. Works on every Claude
 surface (claude.ai / Claude for Science, Desktop, Claude Code) — all actions are MCP tool calls.
 
 ## Safety model (always apply)

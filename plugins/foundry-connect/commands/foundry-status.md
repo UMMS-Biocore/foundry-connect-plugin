@@ -1,5 +1,5 @@
 ---
-description: Show the status of a ViaFoundry run.
+description: Show the status of a Foundry Connect run.
 ---
 
 Call `get_run` for the run the user names and report its status, attempt, and key timings — use the
