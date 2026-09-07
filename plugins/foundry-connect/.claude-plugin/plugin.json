@@ -1,6 +1,6 @@
 {
   "name": "foundry-connect",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Foundry Connect pipeline lifecycle in Claude: the foundry-pipelines skill + /foundry-* commands over the Foundry Connect remote MCP server.",
   "author": { "name": "UMMS Biocore", "email": "alper.kucukural@umassmed.edu" },
   "homepage": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
@@ -11,10 +11,10 @@
   "commands": "./commands/",
   "mcpServers": "./.mcp.json",
   "userConfig": {
-    "instance_url": {
+    "instance_host": {
       "type": "string",
-      "title": "Foundry Connect instance URL",
-      "description": "Your Foundry Connect BASE URL only, e.g. https://foundry.your-org.edu — no trailing slash and no /mcp on the end (this plugin appends /mcp itself). Do not paste the connector URL from Profile → Connect to Claude; that one already ends in /mcp."
+      "title": "Foundry Connect instance hostname",
+      "description": "Your Foundry Connect HOSTNAME ONLY, e.g. foundry.your-org.edu. Do not include https://, do not include a trailing slash, and do not include /mcp. The plugin supplies all three itself, building https://<hostname>/mcp. Do not paste the connector URL from the Connect to Claude page; that one is a full URL."
     }
   }
 }
