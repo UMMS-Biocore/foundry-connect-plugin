@@ -1,12 +1,19 @@
 ---
 name: foundry-pipelines
-description: Use when a user wants to work with Foundry Connect from Claude — explore or inspect runs, access/download result files, analyze data in chat, share results back, author or duplicate pipelines/processes, execute (launch) a run, or launch an app. Routes to task-specific references and enforces confirm-before-write safety.
+description: Use when a user wants to work with Foundry Connect: explore or inspect runs, access/download result files, analyze data in chat, share results back, author or duplicate pipelines/processes, execute (launch) a run, or launch an app. Routes to task-specific references and enforces confirm-before-write safety.
 ---
 
 # Foundry Connect pipelines
 
-Drive the Foundry Connect lifecycle through the `foundry` MCP server's tools. Works on every Claude
-surface (claude.ai / Claude for Science, Desktop, Claude Code) — all actions are MCP tool calls.
+Drive the Foundry Connect lifecycle through the `foundry` MCP server's tools. All actions are MCP
+tool calls, so this works on every supported host: Claude Code, claude.ai and Claude for Science,
+Claude Desktop, GitHub Copilot CLI, and Codex.
+
+**If the `foundry` tools are not available**, the MCP server is not connected on this host. Do not
+try to work around it. Tell the user to check the connect guide for their surface in the
+[plugin repository](https://github.com/UMMS-Biocore/foundry-connect-plugin) under `connect/`, and
+note the two most common causes: the session was not restarted after installing, and on Copilot the
+`instance_host` environment variable is not set.
 
 ## Safety model (always apply)
 - **Read/inspect tools are free** (list/get/download/load/report paths).

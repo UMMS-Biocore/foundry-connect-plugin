@@ -1,6 +1,6 @@
 {
   "name": "foundry-connect",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Foundry Connect pipeline lifecycle in Claude: the foundry-pipelines skill + /foundry-* commands over the Foundry Connect remote MCP server.",
   "author": { "name": "UMMS Biocore", "email": "alper.kucukural@umassmed.edu" },
   "homepage": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
