@@ -13,9 +13,13 @@ Inside a Claude Code session (type these at the Claude Code prompt, not in your 
 /plugin install foundry-connect@foundry-connect
 ```
 
-Claude will prompt for your **Foundry Connect instance URL** (e.g. `https://foundry.your-org.edu`, no
-trailing slash) — this is the plugin's `instance_url` setting, and it's what the bundled MCP
-config uses to build `<instance_url>/mcp`.
+Claude will prompt for your **Foundry Connect instance hostname** (e.g. `foundry.your-org.edu`).
+This is the plugin's `instance_host` setting. Enter the hostname on its own: no `https://`, no
+trailing slash, and no `/mcp`. The bundled MCP config supplies all three, building
+`https://<instance_host>/mcp`.
+
+Older releases called this setting `instance_url` and expected a full base URL including the scheme.
+Version 0.2.0 renamed it, so an upgrade prompts once for the hostname.
 
 This installs, in one step:
 
