@@ -56,7 +56,10 @@ It lists plugins, MCP servers and skills together with their scope.
 ## Authentication
 
 The plugin's server carries no auth header, so it relies on the OAuth sign-in flow, the same as
-Claude Code. The first tool call should open a browser to sign in to Foundry Connect.
+Claude Code. Copilot does perform OAuth discovery: given a `401` it reads the challenge and fetches
+the metadata URL the server names, which is the behaviour Foundry Connect supports today. Sign-in
+itself needs an interactive session, since there is no `copilot mcp login` subcommand to drive it
+from a script.
 
 **If your instance predates the OAuth build, or OAuth does not complete**, use a Personal Access
 Token instead. Create one in Foundry Connect (your account, then Personal Access Tokens; it starts

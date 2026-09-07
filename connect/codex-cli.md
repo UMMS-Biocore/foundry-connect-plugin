@@ -52,11 +52,22 @@ manual add did not happen and nothing will connect.
 
 ## Authentication
 
+> **⚠️ OAuth does not work on Codex against any Foundry Connect instance yet. Use the token below.**
+>
+> Measured 2026-09-07. Codex discovers OAuth metadata by building the **path-suffixed** URL
+> `/.well-known/oauth-protected-resource/mcp` itself, and it **never falls back** to the plain
+> `/.well-known/oauth-protected-resource`. Foundry Connect currently answers the suffixed path with
+> the web app's HTML rather than JSON, so Codex cannot read the metadata and the login fails. The
+> server-side fix exists but is not deployed yet. Copilot and Claude are unaffected, because they
+> follow the URL the server hands them in its `WWW-Authenticate` challenge instead of guessing one.
+
+Once the fix is deployed, this is the command:
+
 ```
 codex mcp login foundry
 ```
 
-If your instance predates the OAuth build, use a Personal Access Token instead (your Foundry Connect
+Until then, and on any instance that predates the OAuth build, use a Personal Access Token (your Foundry Connect
 account, then Personal Access Tokens; it starts with `via_mcp_`). Export it, then add the server so
 it reads the variable by name rather than storing the secret:
 
