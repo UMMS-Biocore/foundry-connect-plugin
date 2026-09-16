@@ -33,7 +33,26 @@ codex plugin add foundry-connect@foundry-connect
 codex mcp add foundry --url https://HOST/mcp
 ```
 
-The last command opens a browser and signs in by itself. Do not run `codex mcp login` afterwards.
+The last command signs in by itself. Do not run `codex mcp login` afterwards.
+
+**Sign in with the default browser, not the Codex app's built-in one.** The sign-in only needs your
+normal browser and this machine:
+
+- **Assistants running inside the Codex app:** run `codex mcp add` with a long timeout (5 minutes)
+  and keep it running, because it is waiting for the sign-in. It prints
+  ``Authorize `foundry` by opening this URL in your browser:`` followed by a URL. Show that URL to
+  the user as a clickable Markdown link, `[Sign in to Foundry Connect](<url>)`, and also open it in
+  the default browser with `open "<url>"` (macOS), `xdg-open "<url>"` (Linux) or
+  `start "" "<url>"` (Windows). Tell the user: approve in the browser, then close that tab; there is
+  no need to come back to it. Wait for `Successfully logged in to MCP server 'foundry'`. If your
+  sandbox cannot run it or it times out, give the user the command to run in their system terminal
+  (Terminal, iTerm, PowerShell), which opens the default browser on its own.
+- **Doing it yourself:** run the command in your system terminal, not inside the Codex app. If a
+  built-in browser opens anyway, copy the printed URL into your default browser.
+
+After **Approve**, the browser briefly goes to `http://127.0.0.1:<port>/callback`. Codex answers
+with "Authentication complete. You may close this window." If the tab shows "can't be reached"
+instead, the sign-in still worked when the terminal says it succeeded. Close the tab either way.
 
 **Copilot CLI** (terminal)
 
