@@ -26,8 +26,25 @@ Restart the extension afterwards so it re-reads the file.
 
 ## Authentication
 
-Use `codex mcp login foundry` from the CLI if you have it. For a Personal Access Token, export the
-variable and reference it by name so the secret stays out of the config file:
+OAuth is the default, with no token to copy. If you added the server with `codex mcp add` above,
+you are already signed in: that command detects OAuth, opens your browser, and finishes the sign-in
+before it returns. The extension uses the same stored sign-in as the CLI.
+
+If you wrote `config.toml` by hand instead, sign in once from the CLI:
+
+```
+codex mcp login foundry
+```
+
+Approve the connection in the browser. The browser is then sent to `http://127.0.0.1:<port>/callback`,
+which is Codex receiving the result on your own machine. If that tab says the site can't be reached
+but the terminal reports success, you are signed in. The [Codex CLI guide](codex-cli.md#add-the-connection-and-sign-in)
+explains that tab, and why the browser and Codex must be on the same machine.
+
+Check first that your instance supports OAuth for Codex, as described in
+[the CLI guide](codex-cli.md#check-your-instance-supports-oauth). If it does not, use a Personal
+Access Token. Export the variable and reference it by name so the secret stays out of the config
+file:
 
 ```toml
 [mcp_servers.foundry]

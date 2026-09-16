@@ -26,6 +26,34 @@ One plugin covers Claude Code, Copilot and Codex. What differs per host is only 
 address reaches it**: a settings prompt on Claude Code, an environment variable on Copilot, and a
 separate `codex mcp add` on Codex, which cannot resolve a variable inside a bundled server URL.
 
+## Signing in: OAuth first, token as the fallback
+
+Every surface that supports it signs in with **OAuth**: the first connection opens a browser, you
+sign in to Foundry Connect and click **Approve**, and the client stores the result. There is no
+token to create or paste.
+
+| Surface | When the browser sign-in happens |
+| --- | --- |
+| Claude Code, CLI and VS Code | first Foundry Connect tool call |
+| claude.ai, Claude for Science, Claude Desktop | when you click **Connect** on the connector |
+| Copilot CLI and Copilot in VS Code | first Foundry Connect tool call, in an interactive session |
+| Codex CLI and Codex IDE extension | during `codex mcp add` itself; `codex mcp login` only to sign in again |
+
+Codex needs an instance that answers the path-suffixed discovery URL. Check yours with:
+
+```
+curl -s https://<hostname>/.well-known/oauth-protected-resource/mcp
+```
+
+JSON back means OAuth works on every surface above. HTML or a 404 means the instance predates that
+fix, so use a **Personal Access Token** (your Foundry Connect account, then Personal Access Tokens;
+it starts with `via_mcp_`). Each guide shows how to supply one.
+
+Terminal clients such as Codex and Claude Code finish the sign-in by sending your browser to
+`http://127.0.0.1:<port>/...` or `http://localhost:<port>/...`. That is the client on your own
+machine receiving the result, not a misconfigured server, so the browser and the client must run on
+the same machine.
+
 ## Quickstart (~90 seconds, Claude Code)
 
 1. Start a Claude Code session, then type these slash commands at the prompt (not in your
