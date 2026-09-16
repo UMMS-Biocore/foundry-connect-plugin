@@ -8,6 +8,24 @@ desktop apps, all built on Foundry Connect's remote MCP server. Once connected, 
 pull result files, analyze data in chat, share results back, and duplicate or launch pipeline runs,
 conversationally, from whichever assistant you use.
 
+## Install
+
+**Fastest:** paste this into Claude Code, Codex or Copilot, with your hostname filled in:
+
+```
+Install Foundry Connect for this app by following
+https://github.com/UMMS-Biocore/foundry-connect-plugin/blob/main/INSTALL.md
+My Foundry Connect hostname is foundry.your-org.edu
+```
+
+**By hand:** [`INSTALL.md`](INSTALL.md) has the exact commands for every app on one page. The
+Claude Code version is two commands:
+
+```
+claude plugin marketplace add UMMS-Biocore/foundry-connect-plugin
+claude plugin install foundry-connect@foundry-connect --config instance_host=foundry.your-org.edu
+```
+
 ## Surface → path
 
 | Provider | Surface | How you connect | Guide | Status |
@@ -23,7 +41,7 @@ conversationally, from whichever assistant you use.
 | OpenAI | ChatGPT web | no self-serve path today | [`chatgpt.md`](connect/chatgpt.md) | **not available** |
 
 One plugin covers Claude Code, Copilot and Codex. What differs per host is only **how the instance
-address reaches it**: a settings prompt on Claude Code, an environment variable on Copilot, and a
+address reaches it**: a settings prompt (or `--config instance_host=...`) on Claude Code, an environment variable on Copilot, and a
 separate `codex mcp add` on Codex, which cannot resolve a variable inside a bundled server URL.
 
 ## Signing in: OAuth first, token as the fallback

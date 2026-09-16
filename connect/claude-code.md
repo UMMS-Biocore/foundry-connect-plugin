@@ -13,7 +13,14 @@ Inside a Claude Code session (type these at the Claude Code prompt, not in your 
 /plugin install foundry-connect@foundry-connect
 ```
 
-Claude will prompt for your **Foundry Connect instance hostname** (e.g. `foundry.your-org.edu`).
+Or from your terminal, with no prompt at all:
+
+```bash
+claude plugin marketplace add UMMS-Biocore/foundry-connect-plugin
+claude plugin install foundry-connect@foundry-connect --config instance_host=foundry.your-org.edu
+```
+
+With the slash commands, Claude will prompt for your **Foundry Connect instance hostname** (e.g. `foundry.your-org.edu`).
 This is the plugin's `instance_host` setting. Enter the hostname on its own: no `https://`, no
 trailing slash, and no `/mcp`. The bundled MCP config supplies all three, building
 `https://<instance_host>/mcp`.
