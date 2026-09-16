@@ -1,6 +1,6 @@
 # Connect: claude.ai / Claude for Science
 
-The Claude Code marketplace/plugin path doesn't apply on the web — claude.ai and Claude for
+The Claude Code marketplace/plugin path doesn't apply on the web. claude.ai and Claude for
 Science connect to Foundry Connect as an MCP **custom connector** instead.
 
 ## Add the connector
@@ -9,8 +9,10 @@ Science connect to Foundry Connect as an MCP **custom connector** instead.
    to add a **custom connector**.
 2. Enter your Foundry Connect MCP URL: `https://<your-instance>/mcp` (replace `<your-instance>` with
    your Foundry Connect base URL).
-3. Click **Connect**. This opens a browser window to sign in to Foundry Connect (OAuth) and provisions
-   the access token for you automatically — there's nothing to copy or paste.
+3. Click **Connect**. This opens a browser window to sign in to Foundry Connect (OAuth). Click
+   **Approve** on the Connect to Foundry Connect page, and Claude provisions the access token for you
+   automatically. There's nothing to copy or paste, and the sign-in returns to claude.ai rather than
+   to a local address.
 
 Once connected, ask Claude things like "show my last 5 runs" and it will call the Foundry Connect MCP
 tools directly.
@@ -25,7 +27,7 @@ revoke individually.
 
 If your Foundry Connect instance predates the OAuth build, the custom-connector OAuth flow won't be
 available. In that case, create a Personal Access Token in Foundry Connect (your account → Personal
-Access Tokens — it starts with `via_mcp_`) and use it wherever your Claude for Science/claude.ai
+Access Tokens; it starts with `via_mcp_`) and use it wherever your Claude for Science/claude.ai
 connector setup accepts an auth token or header (`X-Foundry-Connect-Token: via_mcp_...`) instead of the
 OAuth "Connect" button. Check your workspace admin if custom-connector auth headers aren't exposed
 in your claude.ai settings.

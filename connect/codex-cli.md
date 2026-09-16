@@ -4,7 +4,7 @@ Codex takes this repository as a plugin marketplace and installs the skill and c
 it. **The connection itself is added separately**, with one command, because Codex cannot resolve a
 per-customer address out of a bundled plugin.
 
-Measured against `codex-cli 0.153.0`.
+Measured against `codex-cli 0.153.0`. The OAuth commands were checked against `codex-cli 0.154.0`.
 
 ## First, find the binary
 
@@ -28,7 +28,20 @@ codex plugin add foundry-connect@foundry-connect
 
 That gives you the `foundry-pipelines` skill and the three command wrappers.
 
-## Add the connection
+## Check your instance supports OAuth
+
+Codex finds the sign-in endpoints by building the **path-suffixed** discovery URL itself, and it
+never falls back to the plain one. Check that your instance answers it with JSON:
+
+```
+curl -s https://foundry.your-org.edu/.well-known/oauth-protected-resource/mcp
+```
+
+A reply like `{"resource":"https://foundry.your-org.edu/mcp","authorization_servers":[...]}` means
+OAuth works and you can follow the next section as written. If you get an HTML page or a 404, the
+instance predates that fix: skip to [Personal Access Token instead](#personal-access-token-instead).
+
+## Add the connection and sign in
 
 Codex stores a bundled server's URL **exactly as written** and never expands variables in it, so the
 plugin's own entry cannot point at your instance. Add the real one yourself:
@@ -41,6 +54,23 @@ Use your own hostname, keep the `/mcp` on the end, and keep the name `foundry`. 
 this way **takes precedence over the plugin's unusable entry of the same name**, so the plugin's
 placeholder disappears from the list once yours exists.
 
+**This one command also signs you in.** Codex sees that the server supports OAuth, prints
+`Detected OAuth support. Starting OAuth flow`, and opens your browser:
+
+1. Sign in to Foundry Connect if you are not already.
+2. On the **Connect to Foundry Connect** page, click **Approve**.
+3. The browser is then sent to `http://127.0.0.1:<port>/callback`. That address is **Codex itself**,
+   listening on your own machine for the sign-in result. It is expected, not a misconfiguration.
+4. Go back to the terminal. Codex reports that the login succeeded.
+
+The callback tab sometimes shows "This site can't be reached". Codex stops listening the moment it
+receives the result, so if the tab loads the address a second time (a reload, a retry, or the
+browser preloading it) there is nothing left to answer. If the terminal says the login succeeded,
+the tab can be closed and ignored.
+
+**Do not run `codex mcp login foundry` straight after `codex mcp add`.** The add already signed you
+in, so a second login sends you through Approve again and registers a second, redundant connection.
+
 Confirm:
 
 ```
@@ -48,28 +78,32 @@ codex mcp list
 ```
 
 The `Url` column must show your real hostname. If it still shows `https://${instance_host}/mcp`, the
-manual add did not happen and nothing will connect.
+manual add did not happen and nothing will connect. The `Auth` column should show OAuth.
 
-## Authentication
+### Codex and the browser must be on the same machine
 
-> **⚠️ OAuth does not work on Codex against any Foundry Connect instance yet. Use the token below.**
->
-> Measured 2026-09-07. Codex discovers OAuth metadata by building the **path-suffixed** URL
-> `/.well-known/oauth-protected-resource/mcp` itself, and it **never falls back** to the plain
-> `/.well-known/oauth-protected-resource`. Foundry Connect currently answers the suffixed path with
-> the web app's HTML rather than JSON, so Codex cannot read the metadata and the login fails. The
-> server-side fix exists but is not deployed yet. Copilot and Claude are unaffected, because they
-> follow the URL the server hands them in its `WWW-Authenticate` challenge instead of guessing one.
+The callback goes to `127.0.0.1`, which is whichever machine the **browser** runs on. If Codex runs
+somewhere else, for example over SSH or inside a remote dev container, the browser cannot reach it
+and the sign-in never completes. Run the sign-in on the machine with the browser, or use a
+Personal Access Token on the remote machine.
 
-Once the fix is deployed, this is the command:
+## Signing in again
+
+Use these later, not as part of the first setup:
 
 ```
-codex mcp login foundry
+codex mcp login foundry    # sign in again, e.g. after the connection was revoked or expired
+codex mcp logout foundry   # remove the stored sign-in from this machine
 ```
 
-Until then, and on any instance that predates the OAuth build, use a Personal Access Token (your Foundry Connect
-account, then Personal Access Tokens; it starts with `via_mcp_`). Export it, then add the server so
-it reads the variable by name rather than storing the secret:
+If a Foundry Connect tool call fails with `Authentication required`, run `codex mcp login foundry`.
+
+## Personal Access Token instead
+
+Use this on an instance that predates the OAuth build, or where Codex cannot open a browser on the
+same machine. Create a token in Foundry Connect (your account, then Personal Access Tokens; it starts
+with `via_mcp_`). Export it, then add the server so it reads the variable by name rather than storing
+the secret:
 
 ```
 export FOUNDRY_MCP_PAT=via_mcp_...
@@ -77,7 +111,7 @@ codex mcp add foundry --url https://foundry.your-org.edu/mcp --bearer-token-env-
 ```
 
 Codex sends it as `Authorization: Bearer <token>`, which Foundry Connect accepts alongside the
-`X-Foundry-Connect-Token` header.
+`X-Foundry-Connect-Token` header. Put the `export` in your shell profile so new terminals have it.
 
 ## Optional: scope approvals to this server
 

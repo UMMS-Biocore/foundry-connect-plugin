@@ -28,8 +28,11 @@ This installs, in one step:
 - the `/foundry-run`, `/foundry-status`, `/foundry-results` slash commands
 - the `foundry` remote MCP server pointed at your instance
 
-The first tool call opens a browser window for you to sign in to Foundry Connect (OAuth) — you don't
-need to create or paste a token.
+The first tool call opens a browser window for you to sign in to Foundry Connect (OAuth). You don't
+need to create or paste a token. After you click **Approve**, the browser is sent to a
+`http://localhost:<port>/callback` address: that is Claude Code on your own machine receiving the
+sign-in, so the browser and Claude Code must run on the same machine. You can also start or redo the
+sign-in from `/mcp` by selecting the `foundry` server.
 
 Verify with `claude plugin list` (plugin enabled) and `claude mcp list` or `/mcp` in a session
 (the `foundry` server registered).
@@ -42,8 +45,8 @@ If you don't want the skill/commands, add just the MCP server:
 claude mcp add --transport http foundry https://<your-instance>/mcp
 ```
 
-Replace `<your-instance>` with your Foundry Connect base URL. This also triggers the OAuth browser
-sign-in on first use — no manual token needed.
+Replace `<your-instance>` with your Foundry Connect hostname. This also triggers the OAuth browser
+sign-in on first use, with no manual token needed.
 
 ## VS Code (Claude Code extension)
 
@@ -54,7 +57,7 @@ plugin's tools don't show up.
 ## PAT fallback (no OAuth)
 
 If your Foundry Connect instance doesn't have the OAuth build yet, authenticate with a Personal Access
-Token instead. Create one in Foundry Connect (your account → Personal Access Tokens) — it will start
+Token instead. Create one in Foundry Connect (your account → Personal Access Tokens). It will start
 with `via_mcp_`. Add the server manually (Option B) with an explicit header instead of using the
 plugin's bundled server, which currently only supports the OAuth flow:
 
@@ -63,7 +66,7 @@ claude mcp add --transport http foundry https://<your-instance>/mcp \
   --header "X-Foundry-Connect-Token: via_mcp_..."
 ```
 
-You still get the same MCP tools this way, under the same `foundry` server name — just via a
+You still get the same MCP tools this way, under the same `foundry` server name, just via a
 token instead of a browser sign-in.
 
 > The legacy `X-Foundry Connect-Token` header is still accepted for backward compatibility, so older setups keep working.
