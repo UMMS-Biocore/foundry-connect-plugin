@@ -63,6 +63,13 @@ placeholder disappears from the list once yours exists.
    listening on your own machine for the sign-in result. It is expected, not a misconfiguration.
 4. Go back to the terminal. Codex reports that the login succeeded.
 
+**Use your default browser.** Run `codex mcp add` in your system terminal rather than inside the
+Codex app, which can open the sign-in in its own built-in browser. Codex also prints
+``Authorize `foundry` by opening this URL in your browser:`` with the link, so you can paste it into
+your default browser yourself. If an assistant runs the command for you, it should show that link
+as a clickable link and open it with `open` (macOS), `xdg-open` (Linux) or `start` (Windows); see
+[`INSTALL.md`](../INSTALL.md).
+
 The callback tab sometimes shows "This site can't be reached". Codex stops listening the moment it
 receives the result, so if the tab loads the address a second time (a reload, a retry, or the
 browser preloading it) there is nothing left to answer. If the terminal says the login succeeded,
