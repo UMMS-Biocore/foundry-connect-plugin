@@ -34,6 +34,7 @@ hostname before importing:
 {
   "mcpServers": {
     "foundry": {
+      "type": "http",
       "url": "https://foundry.your-org.edu/mcp"
     }
   }
