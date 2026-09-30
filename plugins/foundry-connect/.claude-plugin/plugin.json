@@ -7,9 +7,7 @@
   "repository": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
   "license": "Apache-2.0",
   "keywords": ["foundry-connect", "viafoundry", "bioinformatics", "pipelines", "mcp", "genomics"],
-  "skills": "./skills/",
-  "commands": "./commands/",
-  "mcpServers": "./.mcp.json",
+  "icon": "./assets/icon.svg",
   "userConfig": {
     "instance_host": {
       "type": "string",
