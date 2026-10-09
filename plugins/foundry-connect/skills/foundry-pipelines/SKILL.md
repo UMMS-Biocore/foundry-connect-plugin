@@ -20,8 +20,8 @@ note the two most common causes: the session was not restarted after installing,
 - **Write or execute tools require an explicit, per-action "yes"** with a one-line plain-language
   summary of exactly what will change, BEFORE the call. This covers: `create_vmeta_dataset`,
   `add_files_to_dataset`, `upload_file`, `create_collection`, `update_metadata_record`,
-  `update_metadata_records`, `create_process*`, `duplicate_process`, `duplicate_run`, `update_run`,
-  `initiate_run`, `launch_app`. Never chain writes without a yes each.
+  `update_metadata_records`, `create_process*`, `duplicate_process`, `create_project`, `create_run`,
+  `duplicate_run`, `update_run`, `initiate_run`, `launch_app`. Never chain writes without a yes each.
 - **One exception, for bulk record edits:** `update_metadata_records` changes many records in a
   single call, so it takes a single "yes" for the whole set. Before asking, show a table with
   every record and its new values. Never split that set into several calls on the same "yes".
@@ -33,7 +33,7 @@ note the two most common causes: the session was not restarted after installing,
 | Analyze already-loaded data in chat | `references/analyze.md` |
 | Upload results, add files to a dataset, create a collection, update fields on metadata records | `references/share-back.md` |
 | Create/duplicate a process, set parameters/config | `references/author.md` |
-| Duplicate → edit inputs → launch (execute) a run, then monitor | `references/execute.md` |
+| Start a run from a pipeline (or duplicate a run), fill inputs, choose where it runs, launch, then monitor | `references/execute.md` |
 | List/launch an app and return its link | `references/apps.md` |
 
 If unsure which, ask one clarifying question, then open the matching reference.
