@@ -18,7 +18,7 @@ the ID you got back from `list_runs` / `get_run`.
 | `list_files(report_id, process_name)` | List files in the run, optionally filtered to one process/step. Returns paths, sizes, extensions. |
 | `get_report_dirs(report_id)` | List the directories in a report where files could be uploaded (used later by `share-back.md`'s `upload_file`). |
 | `get_all_report_paths(report_id)` | List every accessible file path in the report — the fastest way to search for a specific result file by name. |
-| `download_file(report_id, file_path)` | Fetch a file's raw bytes (base64-encoded) so it can be saved locally or handed back to the user. |
+| `download_file(report_id, file_path)` | Fetch a file so it can be saved locally or handed back to the user. A file up to 5MB comes back as its raw bytes (base64-encoded). **A larger file comes back as `download_url` plus a ready `download_command`** (a `curl` line): run that command to save the file to disk, or give the user the link to open in a browser. Never ask for a large file's bytes inline; they do not fit in one tool result. |
 | `load_file(report_id, file_path, separator)` | Read a file's contents directly into the conversation. Tabular files (CSV/TSV/TXT) come back as a formatted table; anything else comes back as raw text. This is how you get data in front of Claude for analysis — no download needed. |
 | `fetch_report(report_id)` | Fetch the complete raw report JSON for a run (all processes, files, and metadata in one call) — useful when you need everything at once instead of drilling down. |
 
