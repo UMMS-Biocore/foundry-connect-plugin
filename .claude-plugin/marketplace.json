@@ -6,7 +6,7 @@
     {
       "name": "foundry-connect",
       "source": "./plugins/foundry-connect",
-      "description": "Drive the Foundry Connect pipeline lifecycle conversationally from Claude — explore runs, access data, share results, author/duplicate/execute pipelines, and launch apps."
+      "description": "Drive the Foundry Connect pipeline lifecycle conversationally from Claude — explore runs, access data, share results, author processes, build or extend pipelines, duplicate and execute runs, and launch apps."
     }
   ]
 }
