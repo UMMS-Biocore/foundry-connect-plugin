@@ -38,7 +38,8 @@ export function openInBrowser(url: string): void {
     process.platform === 'darwin'
       ? ['open', [url]]
       : process.platform === 'win32'
-        ? ['cmd', ['/c', 'start', '""', url]]
+        ? // never through cmd.exe: the URL's & would split it into a second command
+          ['rundll32', ['url.dll,FileProtocolHandler', url]]
         : ['xdg-open', [url]];
   try {
     const child = spawn(cmd, args as string[], { stdio: 'ignore', detached: true });

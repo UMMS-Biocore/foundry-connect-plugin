@@ -120,3 +120,11 @@ test('sendVerdict refuses a malformed request id or behavior', async () => {
   await tick();
   assert.equal(notifications.length, 0);
 });
+
+test('pushNotice emits a channel event marked as a notice with no conversation id', async () => {
+  const { channel, notifications } = await connectClient();
+  await channel.pushNotice('signed out');
+  await tick();
+  assert.equal(notifications[0].method, 'notifications/claude/channel');
+  assert.deepEqual(notifications[0].params, { content: 'signed out', meta: { kind: 'notice' } });
+});
