@@ -35,4 +35,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - name: Committed bundle matches a fresh build
-        run: git diff --exit-code -- dist/channel.js
+        # ls-files first: a deleted bundle would come back untracked and pass the diff
+        run: |
+          git ls-files --error-unmatch dist/channel.js
+          git diff --exit-code -- dist/channel.js

@@ -45,12 +45,18 @@ const STOP_NOTICES: Record<string, string> = {
   unsupported_envelope: 'Foundry Connect channel: Foundry Connect does not accept this channel version. Update the Foundry Connect plugin.',
 };
 
-function isAuthRefusal(err: Error & { data?: unknown }): boolean {
+// A refusal from namespace middleware carries a message or data; one at the HTTP layer
+// (before socket.io sees the request) carries the status in description or context.
+function isAuthRefusal(err: Error & { data?: unknown; description?: unknown; context?: unknown }): boolean {
   const data = err.data as { code?: unknown; status?: unknown } | undefined;
+  const context = err.context as { status?: unknown } | undefined;
+  const refused = (s: unknown) => s === 401 || s === 403;
   return (
     /auth_expired|unauthori[sz]ed|forbidden|401/i.test(err.message) ||
     data?.code === 'auth_expired' ||
-    data?.status === 401
+    refused(data?.status) ||
+    refused(err.description) ||
+    refused(context?.status)
   );
 }
 
@@ -107,6 +113,14 @@ export function startLink(opts: LinkOptions): Link {
   socket.on('connect_error', (err: Error & { data?: unknown }) => {
     if (isAuthRefusal(err)) halt('auth_expired', STOP_NOTICES.auth_expired);
     // anything else (network, server restart) is retried by socket.io with backoff
+  });
+
+  // socket.io never reconnects after the server closes the socket, so stop for good and
+  // say so; otherwise the channel would sit dead and a new sign in could not relink.
+  socket.on('disconnect', (reason: string) => {
+    if (reason === 'io server disconnect') {
+      halt('server_disconnect', `Foundry Connect channel: Foundry Connect closed the connection. ${LOGIN_AGAIN}`);
+    }
   });
 
   socket.on('error', (e: { v?: unknown; code?: unknown }) => {

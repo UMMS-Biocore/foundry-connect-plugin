@@ -13,7 +13,7 @@ const ISSUED = 'via_mcp_test_value_that_must_never_be_printed';
 
 // A stand in for the Foundry Connect OAuth endpoints. The authorize step approves at once,
 // as a signed in person clicking Approve would.
-async function startStubOAuth({ badState = false } = {}) {
+async function startStubOAuth({ badState = false, omitExpiry = false } = {}) {
   const state = { registrations: [], exchanges: [], challenge: null };
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1');
@@ -53,7 +53,8 @@ async function startStubOAuth({ badState = false } = {}) {
         return;
       }
       res.writeHead(200, { 'content-type': 'application/json' });
-      res.end(JSON.stringify({ access_token: ISSUED, token_type: 'Bearer', expires_in: 7776000, scope: 'mcp' }));
+      const issued = { access_token: ISSUED, token_type: 'Bearer', expires_in: omitExpiry ? undefined : 7776000, scope: 'mcp' };
+      res.end(JSON.stringify(issued));
       return;
     }
     res.writeHead(404);
@@ -174,6 +175,19 @@ test('a state mismatch is refused and nothing is saved', async () => {
   }
   assert.equal(stub.state.exchanges.length, 0);
   assert.equal(lib.loadToken(), null);
+});
+
+test('a response without expires_in is kept, with the 90 day lifetime assumed', async () => {
+  const stub = await startStubOAuth({ omitExpiry: true });
+  let saved;
+  try {
+    saved = await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
+  } finally {
+    await stub.close();
+  }
+  const days = (Date.parse(saved.expiresAt) - Date.now()) / 86_400_000;
+  assert.ok(days > 89 && days <= 90, `expected about 90 days, got ${days}`);
+  assert.equal(lib.loadToken().accessToken, ISSUED);
 });
 
 test('instance base URL: https for a host name, http only for loopback', () => {

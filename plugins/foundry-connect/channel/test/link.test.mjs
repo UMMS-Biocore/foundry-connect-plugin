@@ -140,6 +140,36 @@ test('a refused handshake for auth stops after one notice, no retry loop', async
   assert.equal(server.seen.notices.length, 1);
 });
 
+test('a server side disconnect stops the link with one notice so a new sign in can relink', async () => {
+  const backend = await startBackend();
+  const server = fakeServer();
+  const link = start(backend, server);
+  await waitFor(() => backend.state.announces.length === 1);
+  backend.state.sockets[0].disconnect(true);
+  await waitFor(() => link.stopped());
+  await sleep(200);
+  assert.equal(server.seen.notices.length, 1);
+  assert.match(server.seen.notices[0], /foundry-channel-login/);
+});
+
+test('an HTTP level refusal of the handshake stops after one notice, no retry loop', async () => {
+  let attempts = 0;
+  const httpServer = http.createServer();
+  const io = new IOServer(httpServer, {
+    allowRequest: (_req, cb) => {
+      attempts++;
+      cb('unauthorized', false);
+    },
+  });
+  await new Promise((r) => httpServer.listen(0, '127.0.0.1', r));
+  cleanups.push(() => new Promise((r) => io.close(() => r())));
+  const server = fakeServer();
+  start({ host: `http://127.0.0.1:${httpServer.address().port}` }, server);
+  await sleep(600);
+  assert.equal(attempts, 1);
+  assert.equal(server.seen.notices.length, 1);
+});
+
 test('permission:verdict from the backend reaches sendVerdict', async () => {
   const backend = await startBackend();
   const server = fakeServer();

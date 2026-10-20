@@ -13,7 +13,9 @@ export type LoginOptions = {
   timeoutMs?: number;
 };
 
-const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '[::1]']);
+const DEFAULT_LIFETIME_SECONDS = 90 * 24 * 60 * 60;
+
+const LOOPBACK_HOSTS =new Set(['127.0.0.1', 'localhost', '[::1]']);
 
 // A bare host name means https://<host>. A full http URL is accepted only for a loopback
 // host, which is how a local development stack is reached.
@@ -167,15 +169,18 @@ export async function login(instanceHost: string, opts: LoginOptions = {}): Prom
     });
     if (!res.ok) throw new Error(`sign in exchange failed with HTTP ${res.status}`);
     const body = (await res.json()) as { access_token?: unknown; expires_in?: unknown };
-    if (typeof body.access_token !== 'string' || typeof body.expires_in !== 'number') {
+    if (typeof body.access_token !== 'string') {
       throw new Error('sign in exchange returned an unexpected response');
     }
+    // The server may omit expires_in; assume its 90 day lifetime. The backend still
+    // re-checks the credential, so a shorter real life only means an earlier auth_expired.
+    const lifetimeSeconds = typeof body.expires_in === 'number' && body.expires_in > 0 ? body.expires_in : DEFAULT_LIFETIME_SECONDS;
     const stored: StoredToken = {
       instanceHost,
       clientId,
       redirectPort: callback.port,
       accessToken: body.access_token,
-      expiresAt: new Date(Date.now() + body.expires_in * 1000).toISOString(),
+      expiresAt: new Date(Date.now() + lifetimeSeconds * 1000).toISOString(),
     };
     saveToken(stored);
     notify('Foundry Connect: signed in. The channel will connect now.');
