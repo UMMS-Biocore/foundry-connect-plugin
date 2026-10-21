@@ -17,6 +17,13 @@ test('Claude Code version floor is 2.1.234', () => {
   assert.equal(lib.isClaudeCodeVersionSupported('garbage'), false);
 });
 
+test('version floor refuses what the backend refuses: a suffix or surrounding text', () => {
+  assert.equal(lib.isClaudeCodeVersionSupported('2.1.300-beta'), false);
+  assert.equal(lib.isClaudeCodeVersionSupported('2.1.300+build.1'), false);
+  assert.equal(lib.isClaudeCodeVersionSupported(' 2.1.300'), false);
+  assert.equal(lib.isClaudeCodeVersionSupported(undefined), false);
+});
+
 test('request id pattern matches the five letter alphabet without l', () => {
   assert.match('abcde', lib.REQUEST_ID_PATTERN);
   assert.doesNotMatch('abcle', lib.REQUEST_ID_PATTERN);

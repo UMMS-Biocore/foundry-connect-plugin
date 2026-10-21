@@ -40,20 +40,28 @@ test('with no instance host the channel tells the person after initialize', asyn
   child.stdout.on('data', (d) => (out += d));
   const exited = new Promise((r) => child.on('exit', r));
   const send = (m) => child.stdin.write(`${JSON.stringify(m)}\n`);
+  const lines = () => out.split('\n').filter(Boolean).map((l) => JSON.parse(l));
+  // Wait on the output, not a fixed delay: on a loaded machine the child starts slowly.
+  const waitFor = async (find) => {
+    for (let waited = 0; waited < 10000; waited += 20) {
+      const hit = lines().find(find);
+      if (hit) return hit;
+      await new Promise((r) => setTimeout(r, 20));
+    }
+    return undefined;
+  };
   send({
     jsonrpc: '2.0',
     id: 1,
     method: 'initialize',
     params: { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'claude-code', version: '2.1.302' } },
   });
-  await new Promise((r) => setTimeout(r, 300));
+  const init = await waitFor((l) => l.id === 1);
   send({ jsonrpc: '2.0', method: 'notifications/initialized' });
-  await new Promise((r) => setTimeout(r, 300));
+  const notice = await waitFor((l) => l.method === 'notifications/claude/channel');
   child.stdin.end();
   await exited;
-  const lines = out.trim().split('\n').map((l) => JSON.parse(l));
-  assert.equal(lines[0].result.protocolVersion, '2025-11-25');
-  const notice = lines.find((l) => l.method === 'notifications/claude/channel');
+  assert.equal(init?.result?.protocolVersion, '2025-11-25');
   assert.ok(notice, 'expected a notice');
   assert.equal(notice.params.meta.kind, 'notice');
   assert.match(notice.params.content, /no instance host/);

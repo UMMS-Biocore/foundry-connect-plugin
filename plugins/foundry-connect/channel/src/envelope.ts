@@ -42,12 +42,15 @@ export type ErrorEvent = { v: number; code: ChannelErrorCode };
 
 export const REQUEST_ID_PATTERN = /^[a-km-z]{5}$/;
 
-function parseVersion(v: string): number[] | null {
-  const m = /^(\d+)\.(\d+)\.(\d+)/.exec(v.trim());
+// Plain major.minor.patch only, as the backend checks it: a prerelease or build suffix is
+// refused here too, so the channel never announces a version the backend turns away.
+function parseVersion(v: unknown): number[] | null {
+  if (typeof v !== 'string') return null;
+  const m = /^(\d+)\.(\d+)\.(\d+)$/.exec(v);
   return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null;
 }
 
-export function isClaudeCodeVersionSupported(v: string): boolean {
+export function isClaudeCodeVersionSupported(v: unknown): boolean {
   const have = parseVersion(v);
   const floor = parseVersion(MIN_CLAUDE_CODE_VERSION) as number[];
   if (!have) return false;
