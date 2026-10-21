@@ -33,18 +33,30 @@ afterEach(async () => {
   while (cleanups.length) await cleanups.pop()();
 });
 
-async function startBackend({ middleware } = {}) {
+// Acks session:announce the way the Foundry Connect backend does, unless `ack` is false.
+// `events` records the order of everything the channel sent.
+async function startBackend({ middleware, ack = true } = {}) {
   const httpServer = http.createServer();
   const io = new IOServer(httpServer);
   const nsp = io.of('/claude-channel');
-  const state = { handshakes: [], announces: [], sockets: [], replies: [], requests: [] };
+  const state = { handshakes: [], announces: [], sockets: [], replies: [], requests: [], events: [] };
   if (middleware) nsp.use(middleware);
   nsp.on('connection', (socket) => {
     state.handshakes.push({ auth: socket.handshake.auth, query: socket.handshake.query, url: socket.handshake.url });
     state.sockets.push(socket);
-    socket.on('session:announce', (a) => state.announces.push(a));
-    socket.on('reply', (r) => state.replies.push(r));
-    socket.on('permission:request', (r) => state.requests.push(r));
+    socket.on('session:announce', (a, cb) => {
+      state.announces.push(a);
+      state.events.push('session:announce');
+      if (ack) cb?.({ v: 1, ok: true });
+    });
+    socket.on('reply', (r) => {
+      state.replies.push(r);
+      state.events.push('reply');
+    });
+    socket.on('permission:request', (r) => {
+      state.requests.push(r);
+      state.events.push('permission:request');
+    });
   });
   await new Promise((r) => httpServer.listen(0, '127.0.0.1', r));
   const host = `http://127.0.0.1:${httpServer.address().port}`;
@@ -203,4 +215,60 @@ test('replies and permission requests go out with v 1', async () => {
   await waitFor(() => backend.state.replies.length === 1 && backend.state.requests.length === 1);
   assert.deepEqual(backend.state.replies[0], { v: 1, conversationId: 3, text: 'answer' });
   assert.deepEqual(backend.state.requests[0], { v: 1, requestId: 'abcde', toolName: 'Bash', description: 'List files', inputPreview: '{}' });
+});
+
+test('nothing is sent before the announce is acknowledged', async () => {
+  const backend = await startBackend({ ack: false });
+  const link = start(backend, fakeServer());
+  await waitFor(() => backend.state.announces.length === 1);
+  await link.reply(3, 'too early');
+  link.permissionRequest({ requestId: 'abcde', toolName: 'Bash', description: 'List files', inputPreview: '{}' });
+  await sleep(200);
+  assert.deepEqual(backend.state.events, ['session:announce']);
+});
+
+test('a reply made while reconnecting arrives after the new announce', async () => {
+  const backend = await startBackend();
+  const link = start(backend, fakeServer());
+  await waitFor(() => backend.state.announces.length === 1);
+  backend.state.sockets[0].conn.close();
+  await sleep(10);
+  await link.reply(3, 'held');
+  await waitFor(() => backend.state.replies.length === 1);
+  assert.deepEqual(backend.state.events, ['session:announce', 'session:announce', 'reply']);
+  assert.deepEqual(backend.state.replies[0], { v: 1, conversationId: 3, text: 'held' });
+});
+
+test('the backend refusing an expired credential stops after one notice, no retry loop', async () => {
+  let attempts = 0;
+  const backend = await startBackend({
+    middleware: (_socket, next) => {
+      attempts++;
+      next(new Error('Authentication error: Invalid or expired credential'));
+    },
+  });
+  const server = fakeServer();
+  const link = start(backend, server);
+  await sleep(600);
+  assert.equal(attempts, 1);
+  assert.equal(server.seen.notices.length, 1);
+  assert.match(server.seen.notices[0], /foundry-channel-login/);
+  assert.equal(link.stopped(), true);
+});
+
+test('the channel flag off at connect says so once and does not retry', async () => {
+  let attempts = 0;
+  const backend = await startBackend({
+    middleware: (_socket, next) => {
+      attempts++;
+      next(new Error('Feature not found'));
+    },
+  });
+  const server = fakeServer();
+  const link = start(backend, server);
+  await sleep(600);
+  assert.equal(attempts, 1);
+  assert.equal(server.seen.notices.length, 1);
+  assert.match(server.seen.notices[0], /not turned on/);
+  assert.equal(link.stopped(), true);
 });

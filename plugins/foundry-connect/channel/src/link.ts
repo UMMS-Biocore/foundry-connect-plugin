@@ -36,10 +36,16 @@ export type Link = {
   permissionRequest(r: PermissionRequest): void;
 };
 
-const LOGIN_AGAIN = 'Run /foundry-channel-login in Claude Code to sign in again.';
+// Replies and requests held while the link reconnects; past this many, new ones are dropped.
+const MAX_PENDING = 100;
+
+const LOGIN_AGAIN ='Run /foundry-channel-login in Claude Code to sign in again.';
 
 const STOP_NOTICES: Record<string, string> = {
-  auth_expired: `Foundry Connect channel: the sign in expired or was revoked, so the channel disconnected. ${LOGIN_AGAIN}`,
+  // The backend also sends auth_expired when the channel is turned off for the account.
+  auth_expired: `Foundry Connect channel: the sign in expired or was revoked, or the channel was turned off for your account, so the channel disconnected. ${LOGIN_AGAIN}`,
+  feature_off:
+    'Foundry Connect channel: the Claude Code channel is not turned on for your Foundry Connect account, so the channel did not connect. Ask your Foundry Connect administrator to turn it on, then restart Claude Code.',
   version_too_old: `Foundry Connect channel: Foundry Connect refused this Claude Code version. Update Claude Code to ${MIN_CLAUDE_CODE_VERSION} or later.`,
   session_id_in_use: 'Foundry Connect channel: another channel already uses this session id, so this one stopped. Restart Claude Code to get a new one.',
   unsupported_envelope: 'Foundry Connect channel: Foundry Connect does not accept this channel version. Update the Foundry Connect plugin.',
@@ -52,7 +58,7 @@ function isAuthRefusal(err: Error & { data?: unknown; description?: unknown; con
   const context = err.context as { status?: unknown } | undefined;
   const refused = (s: unknown) => s === 401 || s === 403;
   return (
-    /auth_expired|unauthori[sz]ed|forbidden|401/i.test(err.message) ||
+    /auth_expired|authentication error|unauthori[sz]ed|forbidden|401/i.test(err.message) ||
     data?.code === 'auth_expired' ||
     refused(data?.status) ||
     refused(err.description) ||
@@ -64,10 +70,21 @@ export function startLink(opts: LinkOptions): Link {
   const { server, descriptor } = opts;
   let stopped = false;
   let socket: Socket | null = null;
+  // The backend drops a reply or request from a socket that has not announced, and socket.io
+  // flushes its own buffer before our connect handler runs. So everything waits here until the
+  // announce of the current connection is acknowledged.
+  let announced = false;
+  const pending: Array<[string, unknown]> = [];
+
+  const send = (event: string, payload: unknown) => {
+    if (announced && socket?.connected) socket.emit(event, payload);
+    else if (pending.length < MAX_PENDING) pending.push([event, payload]);
+  };
 
   const halt = (reason: string, notice: string) => {
     if (stopped) return;
     stopped = true;
+    pending.length = 0;
     socket?.disconnect();
     process.stderr.write(`${notice}\n`);
     server.pushNotice(notice).catch(() => {});
@@ -82,12 +99,12 @@ export function startLink(opts: LinkOptions): Link {
     stopped: () => stopped,
     async reply(conversationId, text) {
       if (stopped || !socket) throw new Error(`the channel is not signed in to Foundry Connect. ${LOGIN_AGAIN}`);
-      // socket.io buffers this while reconnecting and sends it on the next connect
-      socket.emit('reply', { v: CLAUDE_CHANNEL_ENVELOPE_VERSION, conversationId, text });
+      // held while reconnecting and sent once the next announce is acknowledged
+      send('reply', { v: CLAUDE_CHANNEL_ENVELOPE_VERSION, conversationId, text });
     },
     permissionRequest(r) {
       if (stopped || !socket) return;
-      socket.emit('permission:request', { v: CLAUDE_CHANNEL_ENVELOPE_VERSION, ...r });
+      send('permission:request', { v: CLAUDE_CHANNEL_ENVELOPE_VERSION, ...r });
     },
   };
 
@@ -107,17 +124,28 @@ export function startLink(opts: LinkOptions): Link {
   });
 
   socket.on('connect', () => {
-    socket?.emit('session:announce', { v: CLAUDE_CHANNEL_ENVELOPE_VERSION, ...descriptor, claudeCodeVersion });
+    announced = false;
+    const s = socket;
+    s?.emit('session:announce', { v: CLAUDE_CHANNEL_ENVELOPE_VERSION, ...descriptor, claudeCodeVersion }, (ack: unknown) => {
+      const a = ack as { v?: unknown; ok?: unknown } | undefined;
+      // A refusal arrives as an error event instead, which stops the link.
+      if (stopped || socket !== s || !s?.connected || a?.v !== CLAUDE_CHANNEL_ENVELOPE_VERSION || a.ok !== true) return;
+      announced = true;
+      for (const [event, payload] of pending.splice(0)) s.emit(event, payload);
+    });
   });
 
   socket.on('connect_error', (err: Error & { data?: unknown }) => {
-    if (isAuthRefusal(err)) halt('auth_expired', STOP_NOTICES.auth_expired);
+    if (/feature not found/i.test(err.message)) halt('feature_off', STOP_NOTICES.feature_off);
+    // A refusal from namespace middleware leaves the socket inactive: socket.io will not retry it.
+    else if (isAuthRefusal(err) || socket?.active === false) halt('auth_expired', STOP_NOTICES.auth_expired);
     // anything else (network, server restart) is retried by socket.io with backoff
   });
 
   // socket.io never reconnects after the server closes the socket, so stop for good and
   // say so; otherwise the channel would sit dead and a new sign in could not relink.
   socket.on('disconnect', (reason: string) => {
+    announced = false;
     if (reason === 'io server disconnect') {
       halt('server_disconnect', `Foundry Connect channel: Foundry Connect closed the connection. ${LOGIN_AGAIN}`);
     }
