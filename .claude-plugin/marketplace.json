@@ -1,12 +1,22 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "foundry-connect",
-  "owner": { "name": "UMMS Biocore" },
-  "description": "Marketplace for the foundry-connect plugin — drive the Foundry Connect pipeline lifecycle conversationally from Claude over the Foundry Connect remote MCP server.",
+  "owner": {
+    "name": "UMMS Biocore",
+    "email": "alper.kucukural@umassmed.edu"
+  },
+  "description": "Marketplace for the Foundry Connect plugin, which runs the Foundry Connect pipeline lifecycle from Claude over the Foundry Connect remote MCP server.",
   "plugins": [
     {
       "name": "foundry-connect",
       "source": "./plugins/foundry-connect",
-      "description": "Drive the Foundry Connect pipeline lifecycle conversationally from Claude — explore runs, access data, share results, author processes, build or extend pipelines, duplicate and execute runs, and launch apps."
+      "description": "Run the Foundry Connect pipeline lifecycle from Claude: explore runs, access data, share results, author processes, build or extend pipelines, and duplicate and execute runs and apps.",
+      "category": "development",
+      "homepage": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
+      "author": {
+        "name": "UMMS Biocore",
+        "email": "alper.kucukural@umassmed.edu"
+      }
     }
   ]
 }

@@ -41,7 +41,7 @@ hostname before importing:
 }
 ```
 
-in `plugins/foundry-connect/.mcp.json`. One fork per organization, which is exactly the tradeoff the
+in `plugins/foundry-connect/mcp/claude.json`. One fork per organization, which is exactly the tradeoff the
 templating was meant to avoid, but it is contained when the importing workspace and the Foundry
 Connect instance belong to the same organization anyway.
 

@@ -1,13 +1,26 @@
 {
   "name": "foundry-connect",
-  "version": "0.4.0",
-  "description": "Foundry Connect pipeline lifecycle in Claude: the foundry-pipelines and foundry-pipeline-dev skills + /foundry-* commands over the Foundry Connect remote MCP server.",
-  "author": { "name": "UMMS Biocore", "email": "alper.kucukural@umassmed.edu" },
+  "displayName": "Foundry Connect",
+  "version": "0.5.0",
+  "description": "Run the Foundry Connect pipeline lifecycle from Claude: explore runs, access and analyze results, share them back, author processes, build or extend pipelines, and launch runs and apps over the Foundry Connect remote MCP server. Includes the foundry-pipelines and foundry-pipeline-dev skills, the /foundry-* commands, and an optional chat channel.",
+  "author": {
+    "name": "UMMS Biocore",
+    "email": "alper.kucukural@umassmed.edu"
+  },
   "homepage": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
   "repository": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
-  "license": "Apache-2.0",
+  "documentationUrl": "https://viafoundry.umassmed.edu/docs/developer-guides/using-viafoundry-with-claude/",
+  "supportUrl": "https://viafoundry.umassmed.edu/docs/resources/contact-support/",
   "privacyPolicyUrl": "https://viafoundry.umassmed.edu/docs/privacy-policy/",
-  "keywords": ["foundry-connect", "viafoundry", "bioinformatics", "pipelines", "mcp", "genomics"],
+  "termsOfServiceUrl": "https://github.com/UMMS-Biocore/foundry-connect-plugin/blob/main/LICENSE",
+  "license": "Apache-2.0",
+  "keywords": [
+    "foundry-connect",
+    "bioinformatics",
+    "pipelines",
+    "mcp",
+    "genomics"
+  ],
   "icon": "./assets/icon.svg",
   "userConfig": {
     "instance_host": {
@@ -15,5 +28,12 @@
       "title": "Foundry Connect instance hostname",
       "description": "Your Foundry Connect HOSTNAME ONLY, e.g. foundry.your-org.edu. Do not include https://, do not include a trailing slash, and do not include /mcp. The plugin supplies all three itself, building https://<hostname>/mcp. Do not paste the connector URL from the Connect to Claude page; that one is a full URL."
     }
-  }
+  },
+  "mcpServers": "./mcp/claude.json",
+  "channels": [
+    {
+      "server": "foundry-channel",
+      "displayName": "Foundry Connect chat"
+    }
+  ]
 }

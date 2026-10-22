@@ -15,5 +15,5 @@ const common = {
   logLevel: 'warning',
 };
 
-await build({ ...common, entryPoints: ['src/index.ts'], outfile: 'dist/channel.js', minify: true });
+await build({ ...common, entryPoints: ['src/index.ts'], outfile: 'dist/channel.js', minify: false });
 await build({ ...common, entryPoints: ['src/lib.ts'], outfile: 'build/lib.cjs' });
