@@ -3,8 +3,9 @@
 Purpose: create or duplicate individual **processes** (pipeline steps) and their parameters.
 
 **Wiring processes into a pipeline** (a new multi-step pipeline, a copy of one, or an added step)
-is the `foundry-pipeline-dev` skill. It builds the graph with the Foundry SDK, because the MCP
-server has no pipeline-building tool yet, and uses the process tools below for each step.
+is the `foundry-pipeline-dev` skill. It builds the graph with the Foundry SDK where there is a
+shell, or with the MCP pipeline tools (`create_pipeline_config`, `create_pipeline`,
+`update_pipeline`) where there is not, and uses the process tools below for each step.
 
 ## Read tools (free, no confirmation)
 
