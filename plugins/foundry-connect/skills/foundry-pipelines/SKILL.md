@@ -33,6 +33,7 @@ note the two most common causes: the session was not restarted after installing,
 | Analyze already-loaded data in chat | `references/analyze.md` |
 | Upload results, add files to a dataset, create a collection, update fields on metadata records | `references/share-back.md` |
 | Create/duplicate a process, set parameters/config | `references/author.md` |
+| Build, copy or extend a whole pipeline (wire processes together) | the `foundry-pipeline-dev` skill |
 | Start a run from a pipeline (or duplicate a run), fill inputs, choose where it runs, launch, then monitor | `references/execute.md` |
 | List/launch an app and return its link | `references/apps.md` |
 

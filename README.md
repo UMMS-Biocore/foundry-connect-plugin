@@ -2,7 +2,7 @@
 
 `foundry-connect` connects [Foundry Connect](https://github.com/UMMS-Biocore/foundry-connect), the
 bioinformatics pipeline platform, to the assistant you already work in. It ships one plugin (the
-`foundry-pipelines` skill plus `/foundry-run`, `/foundry-status`, `/foundry-results` commands) that
+`foundry-pipelines` and `foundry-pipeline-dev` skills plus `/foundry-run`, `/foundry-status`, `/foundry-results` commands) that
 installs on Claude Code, GitHub Copilot and Codex, plus per-surface connect guides for the web and
 desktop apps, all built on Foundry Connect's remote MCP server. Once connected, you can explore runs,
 pull result files, analyze data in chat, share results back, and duplicate or launch pipeline runs,

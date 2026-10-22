@@ -1,7 +1,7 @@
 # Connect: GitHub Copilot CLI
 
 Copilot CLI reads this repository as a plugin marketplace and installs the same plugin Claude Code
-uses. You get the `foundry-pipelines` skill, the three `/foundry-*` command wrappers, and the
+uses. You get the `foundry-pipelines` and `foundry-pipeline-dev` skills, the three `/foundry-*` command wrappers, and the
 `foundry` MCP server, all from one install.
 
 Measured against `GitHub Copilot CLI 1.0.83`.

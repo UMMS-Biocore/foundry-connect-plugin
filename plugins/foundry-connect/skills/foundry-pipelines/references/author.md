@@ -2,11 +2,9 @@
 
 Purpose: create or duplicate individual **processes** (pipeline steps) and their parameters.
 
-**Not available yet:** there is no tool for authoring a full multi-step pipeline recipe from
-scratch (wiring several processes together into a complete pipeline graph). If a user asks to
-"build a whole new pipeline," say plainly that step-level process authoring is supported today but
-end-to-end pipeline-recipe authoring is not, and offer the process-level tools below instead (or
-point to duplicating/launching an existing pipeline via `execute.md`).
+**Wiring processes into a pipeline** (a new multi-step pipeline, a copy of one, or an added step)
+is the `foundry-pipeline-dev` skill. It builds the graph with the Foundry SDK, because the MCP
+server has no pipeline-building tool yet, and uses the process tools below for each step.
 
 ## Read tools (free, no confirmation)
 
