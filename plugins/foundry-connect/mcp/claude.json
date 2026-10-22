@@ -2,7 +2,7 @@
   "mcpServers": {
     "foundry": {
       "type": "http",
-      "url": "https://${instance_host}/mcp"
+      "url": "https://${user_config.instance_host}/mcp"
     },
     "foundry-channel": {
       "command": "node",

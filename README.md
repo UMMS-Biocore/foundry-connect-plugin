@@ -1,8 +1,10 @@
 # foundry-connect
 
-`foundry-connect` connects [Foundry Connect](https://github.com/UMMS-Biocore/foundry-connect), the
+`foundry-connect` connects [Foundry Connect](https://viafoundry.umassmed.edu/docs/), the
 bioinformatics pipeline platform, to the assistant you already work in. It ships one plugin (the
-`foundry-pipelines` and `foundry-pipeline-dev` skills plus `/foundry-run`, `/foundry-status`, `/foundry-results` commands) that
+`foundry-pipelines` and `foundry-pipeline-dev` skills plus the `/foundry-run`, `/foundry-status`,
+`/foundry-results` and `/foundry-channel-login` commands, and on Claude Code an optional chat
+channel to the Foundry Connect web app) that
 installs on Claude Code, GitHub Copilot and Codex, plus per-surface connect guides for the web and
 desktop apps, all built on Foundry Connect's remote MCP server. Once connected, you can explore runs,
 pull result files, analyze data in chat, share results back, and duplicate or launch pipeline runs,
@@ -98,8 +100,10 @@ the same machine.
 5. The first tool call opens a browser to sign in to Foundry Connect (OAuth), with no token to
    copy.
 6. Ask Claude: **"show my last 5 runs"**.
-7. Try your first run with **`/foundry-run`**. It duplicates an existing run, lets you edit
-   inputs, and launches it, confirming with you before anything is written or executed.
+7. Try your first run with **`/foundry-run`**. It starts from a pipeline: it picks or creates a
+   project, creates the run, collects the inputs and where to run it, and launches it. Name an
+   existing run instead and it copies that run. It confirms with you before anything is written
+   or executed.
 
 Working somewhere else? Every surface has its own guide in [`connect/`](connect/), including
 Copilot CLI, Codex CLI and the web and desktop apps. The Claude web and desktop apps connect Foundry
@@ -128,6 +132,13 @@ Connect as an MCP connector rather than as a plugin.
 
 - Your Foundry Connect instance's docs (Developer Guides, then API Guide, then MCP Integration) cover
   Personal Access Tokens and manual client configuration if you need them.
+
+## What the plugin runs
+
+[`plugins/foundry-connect/README.md`](plugins/foundry-connect/README.md) lists every skill and
+command, and discloses what the plugin runs on your machine and what it sends: the `foundry`
+remote MCP connection, and on Claude Code the `foundry-channel` Node.js process that links a
+session to the Foundry Connect chat drawer over a socket connection and stores its own sign in.
 
 ## Safety
 
