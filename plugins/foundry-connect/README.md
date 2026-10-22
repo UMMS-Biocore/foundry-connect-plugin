@@ -34,8 +34,9 @@ this repository.
   inspect runs, access and download result files, analyze data in chat, share results back,
   author or duplicate processes, execute a run, or launch an app.
 - **foundry-pipeline-dev**: builds, extends, copies or rewires a pipeline. It designs the graph,
-  creates the processes a step needs, builds and type checks the graph from a JSON spec, creates
-  the pipeline, and starts a first test run.
+  creates the processes a step needs, builds and type checks the graph (with a bundled script
+  where there is a shell, or the MCP pipeline tools on claude.ai), creates the pipeline, and
+  starts a first test run.
 
 ## Commands
 

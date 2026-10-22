@@ -21,7 +21,7 @@ note the two most common causes: the session was not restarted after installing,
   summary of exactly what will change, BEFORE the call. This covers: `create_vmeta_dataset`,
   `add_files_to_dataset`, `upload_file`, `create_collection`, `update_metadata_record`,
   `update_metadata_records`, `create_process*`, `duplicate_process`, `create_project`, `create_run`,
-  `duplicate_run`, `update_run`, `initiate_run`, `launch_app`. Never chain writes without a yes each.
+  `duplicate_run`, `update_run`, `initiate_run`, `launch_app`, `create_pipeline`, `update_pipeline`. Never chain writes without a yes each.
 - **One exception, for bulk record edits:** `update_metadata_records` changes many records in a
   single call, so it takes a single "yes" for the whole set. Before asking, show a table with
   every record and its new values. Never split that set into several calls on the same "yes".

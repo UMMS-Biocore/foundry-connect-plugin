@@ -11,15 +11,17 @@ reports), joined by typed edges. This skill takes a user from "I have these step
 that runs.
 
 Processes are authored through the Foundry Connect MCP tools (see the `foundry-pipelines` skill,
-`references/author.md`). The graph itself is built with the Foundry SDK through the bundled
-`scripts/pipeline.py`, because the MCP server has no pipeline-building tool yet.
+`references/author.md`). The graph is built one of two ways, depending on the host:
+
+- **With a shell** (Claude Code, Codex, Copilot CLI): the bundled `scripts/pipeline.py`, on top of
+  the Foundry SDK. Setup is below.
+- **Without a shell** (claude.ai, Claude Desktop): the Foundry Connect MCP pipeline tools. See
+  "Without a shell" below. Wherever a step says `pipeline.py <command>`, use the matching tool.
 
 ## Before starting
 
-1. **A shell with Python is needed for the graph step.** Claude Code, Codex and Copilot CLI have one.
-   On claude.ai or Claude Desktop without a shell, you can still design the pipeline and create its
-   processes through MCP, then tell the user to wire the graph in the web editor (Pipelines, New
-   Pipeline, drag the processes in). Say this up front, not after the processes exist.
+1. **Pick the path once, up front.** If a shell with Python is available, use the script. If not,
+   use the MCP pipeline tools.
 2. **Run the script with the SDK**, without installing anything globally:
    `uv run --with git+https://github.com/UMMS-Biocore/foundry-sdk python <skill>/scripts/pipeline.py ...`
    (the SDK's `main` branch; the script stops with a clear message if that SDK has no pipeline
@@ -37,11 +39,46 @@ Processes are authored through the Foundry Connect MCP tools (see the `foundry-p
    ask the user to run `foundry configure` themselves and answer its prompts. Do not put a token or
    password in a command you run: command lines end up in shell history and in the transcript.
 
+## Without a shell: the MCP pipeline tools
+
+| Script command | MCP tool | Writes? |
+| --- | --- | --- |
+| `revisions <id>` | `list_pipeline_revisions(pipeline_id)` | no |
+| `process <id>` | `get_process_details(process_id)`, `get_process_parameters(...)` | no |
+| `show <id>` | `get_pipeline(pipeline_id)`: graph plus `connections` and `unconnected_inputs` | no |
+| `plan <spec>` | `create_pipeline_config(name, pipeline_group_id, processes, connections, inputs, outputs, ...)` | no |
+| `create <spec>` | `create_pipeline(...same arguments..., confirm_create=true)`, always new and private | yes |
+| `update <id> <spec>` | `update_pipeline(pipeline_id, processes, connections, confirm_update=true, ...)` | yes |
+
+The tools take **lists**, not the script's dicts. Translate the spec like this:
+
+- `processes: {"check": 3017}` becomes `processes=[{"key": "check", "process_id": 3017}]`
+- `inputs: {"label": {"name": "inputParam"}}` becomes `inputs=[{"key": "label", "name": "inputParam"}]`
+- `outputs: {"report": {"name": "outputParam", "publish": "html"}}` becomes
+  `outputs=[{"key": "report", "name": "outputParam", "publish": "html"}]`
+- `edges` becomes `connections`, with the same `from`, `to`, `output` and `input` fields.
+
+Pipeline 1777 in full: `processes=[{"key":"check","process_id":3017}]`,
+`inputs=[{"key":"label","name":"inputParam"}]`, `outputs=[{"key":"report","name":"outputParam"}]`,
+`connections=[{"from":"label","to":"check"},{"from":"check","to":"report"}]`.
+
+Before a create, run `create_pipeline_config` and show the user its `connections` and
+`unconnected_inputs`. Before an update, show `get_pipeline` for the current graph next to the new
+`create_pipeline_config` result. Set `confirm_create` or `confirm_update` to true only after their
+"yes". `update_pipeline` refuses a pipeline that is public, shared with a group, pinned, or not
+editable by the signed in account; offer `create_pipeline` for a private copy instead.
+
+**If one of these tools is missing** from the Foundry Connect connector, the server has not been
+updated yet. Tell the user so, and stop at that step (they can wire the graph in the web editor:
+Pipelines, New Pipeline, drag the processes in). Do not fall back to raw API calls.
+
 ## Safety (always apply)
 
-- Reading is free: `revisions`, `process`, `show`, `plan`, and the MCP list and get tools.
+- Reading is free: `revisions`, `process`, `show`, `plan`, their MCP equivalents, and the MCP list
+  and get tools.
 - **Each write needs its own "yes"** right before it, with a one-line summary of what changes:
-  `pipeline.py create`, `pipeline.py update`, and every process write in `author.md`.
+  `pipeline.py create` or `create_pipeline`, `pipeline.py update` or `update_pipeline`, and every
+  process write in `author.md`.
 - **Save only over a pipeline the user owns and that no one else runs.** A save edits the pipeline
   in place (same id, same revision), so existing runs and other users see the change at once. To
   change anyone else's pipeline, or a shared or published one, `show` it, save the spec, and
