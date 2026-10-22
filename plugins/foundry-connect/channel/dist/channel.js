@@ -39494,7 +39494,7 @@ var Server = class extends Protocol {
 };
 
 // src/server.ts
-var CHANNEL_VERSION = "0.4.0";
+var CHANNEL_VERSION = "0.5.0";
 var INSTRUCTIONS = [
   'Messages from the Foundry Connect chat drawer arrive as <channel source="foundry-channel" conversation_id="...">.',
   "The person who sent them is the signed in owner of this session, typing in their Foundry Connect browser window.",
