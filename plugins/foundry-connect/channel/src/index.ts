@@ -4,6 +4,7 @@ import os from 'node:os';
 
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 
+import { loadedAsChannel, parentArgv } from './launch.js';
 import { startLink, type Link } from './link.js';
 import { login } from './login.js';
 import { CHANNEL_VERSION, createChannelServer } from './server.js';
@@ -34,6 +35,7 @@ async function runLoginCommand(arg: string | undefined): Promise<void> {
 
 async function runChannel(): Promise<void> {
   const host = configuredHost(process.env.FOUNDRY_INSTANCE_HOST);
+  const asChannel = loadedAsChannel(parentArgv());
   const descriptor = {
     sessionId: randomUUID(),
     machine: os.hostname(),
@@ -45,6 +47,7 @@ async function runChannel(): Promise<void> {
 
   const channel = createChannelServer({
     onReply: async (conversationId, text) => {
+      if (!asChannel) throw new Error('this Claude Code session was not started with the Foundry Connect chat channel.');
       if (!link) throw new Error('the channel is not connected to Foundry Connect. Run /foundry-channel-login.');
       await link.reply(conversationId, text);
     },
@@ -68,6 +71,9 @@ async function runChannel(): Promise<void> {
   process.stdin.on('end', shutdown);
 
   channel.server.oninitialized = () => {
+    // Not started as a channel: Claude Code drops our messages, so connecting would list a
+    // drawer session nobody can reach, and signing in would open a browser for nothing.
+    if (!asChannel) return;
     if (!host) {
       channel
         .pushNotice('Foundry Connect channel: no instance host is set, so the channel is idle. Set it in the plugin options (/plugin) and restart Claude Code.')
