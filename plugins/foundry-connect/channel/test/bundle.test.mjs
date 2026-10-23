@@ -34,16 +34,26 @@ test('bundled channel starts and exits when stdin closes', async () => {
   assert.equal(code, 0, stderr);
 });
 
-test('with no instance host the channel tells the person after initialize', async () => {
-  const child = spawn(process.execPath, [bundle], { stdio: ['pipe', 'pipe', 'pipe'], env: cleanEnv() });
+// Starts the bundle the way Claude Code does for a channel session: as the child of a
+// process whose command line names this channel.
+function spawnAsChannel() {
+  const relay = "require('child_process').spawn(process.execPath,[process.argv[1]],{stdio:'inherit'}).on('exit',(c)=>process.exit(c??1))";
+  return spawn(process.execPath, ['-e', relay, '--', bundle, '--channels', 'server:foundry-channel'], {
+    stdio: ['pipe', 'pipe', 'pipe'],
+    env: cleanEnv(),
+  });
+}
+
+// Sends initialize and initialized, then waits up to `ms` for a channel notification.
+async function channelNoticeAfterInitialize(child, ms) {
   let out = '';
   child.stdout.on('data', (d) => (out += d));
   const exited = new Promise((r) => child.on('exit', r));
   const send = (m) => child.stdin.write(`${JSON.stringify(m)}\n`);
   const lines = () => out.split('\n').filter(Boolean).map((l) => JSON.parse(l));
   // Wait on the output, not a fixed delay: on a loaded machine the child starts slowly.
-  const waitFor = async (find) => {
-    for (let waited = 0; waited < 10000; waited += 20) {
+  const waitFor = async (find, limit = 10000) => {
+    for (let waited = 0; waited < limit; waited += 20) {
       const hit = lines().find(find);
       if (hit) return hit;
       await new Promise((r) => setTimeout(r, 20));
@@ -58,13 +68,23 @@ test('with no instance host the channel tells the person after initialize', asyn
   });
   const init = await waitFor((l) => l.id === 1);
   send({ jsonrpc: '2.0', method: 'notifications/initialized' });
-  const notice = await waitFor((l) => l.method === 'notifications/claude/channel');
+  const notice = await waitFor((l) => l.method === 'notifications/claude/channel', ms);
   child.stdin.end();
   await exited;
   assert.equal(init?.result?.protocolVersion, '2025-11-25');
+  return notice;
+}
+
+test('with no instance host the channel tells the person after initialize', async () => {
+  const notice = await channelNoticeAfterInitialize(spawnAsChannel(), 10000);
   assert.ok(notice, 'expected a notice');
   assert.equal(notice.params.meta.kind, 'notice');
   assert.match(notice.params.content, /no instance host/);
+});
+
+test('a session not started with the channel flag stays silent after initialize', async () => {
+  const child = spawn(process.execPath, [bundle], { stdio: ['pipe', 'pipe', 'pipe'], env: cleanEnv() });
+  assert.equal(await channelNoticeAfterInitialize(child, 1500), undefined);
 });
 
 test('login subcommand without a host exits 1 with one status line', async () => {

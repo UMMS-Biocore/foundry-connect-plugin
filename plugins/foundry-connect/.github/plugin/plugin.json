@@ -1,6 +1,6 @@
 {
   "name": "foundry-connect",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Run the Foundry Connect pipeline lifecycle from your assistant: explore runs, access and analyze results, share them back, author processes, build or extend pipelines, and launch runs and apps over the Foundry Connect remote MCP server. Includes the foundry-pipelines and foundry-pipeline-dev skills and the /foundry-* commands.",
   "author": {
     "name": "UMMS Biocore",

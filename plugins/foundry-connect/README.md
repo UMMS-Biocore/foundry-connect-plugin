@@ -63,13 +63,19 @@ from the browser. Specifically:
 - Claude Code starts it as a **Node.js process** on your machine, running the bundled
   `channel/dist/channel.js`. Node 18 or later is required, and nothing is downloaded or installed
   at run time.
+- It does anything only in a session **started as a channel**, that is with
+  `--channels plugin:foundry-connect@foundry-connect` (or, while the channel is not on the
+  approved list, `--dangerously-load-development-channels plugin:foundry-connect@foundry-connect`).
+  Claude Code does not tell the channel which sessions those are, so it reads the command line
+  Claude Code was started with. In every other session it stays idle: it opens no connection,
+  does not appear in the drawer, and never opens the browser.
 - It opens a **socket connection** (Socket.IO over HTTPS) to your Foundry Connect instance, to the
   same hostname you configured. It does not contact any other host.
 - On connect it sends a session descriptor: a random session id, your machine's hostname, the
   folder Claude Code was started in, the start time, and the channel version. After that it
   carries messages you send from the drawer into this session, Claude's replies back to the
   drawer, and tool permission prompts you choose to answer from the drawer.
-- On first start it opens your browser once to sign in. The resulting **sign in is stored** in
+- On its first start as a channel it opens your browser once to sign in. The resulting **sign in is stored** in
   `~/.config/foundry-connect/channel.json` (or under `$XDG_CONFIG_HOME`). It is never printed,
   logged or sent to Claude, and it works only against the instance it was issued for.
 - **`/foundry-channel-login`** runs `node channel/dist/channel.js login` to sign in again. It prints

@@ -32,7 +32,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 // node_modules/xmlhttprequest-ssl/lib/XMLHttpRequest.js
 var require_XMLHttpRequest = __commonJS({
   "node_modules/xmlhttprequest-ssl/lib/XMLHttpRequest.js"(exports2, module2) {
-    var fs3 = require("fs");
+    var fs4 = require("fs");
     var Url = require("url");
     var spawn2 = require("child_process").spawn;
     module2.exports = XMLHttpRequest3;
@@ -190,7 +190,7 @@ var require_XMLHttpRequest = __commonJS({
             throw new Error("XMLHttpRequest: Only GET method is supported");
           }
           if (settings.async) {
-            fs3.readFile(unescape(url3.pathname), function(error62, data2) {
+            fs4.readFile(unescape(url3.pathname), function(error62, data2) {
               if (error62) {
                 self.handleError(error62, error62.errno || -1);
               } else {
@@ -202,7 +202,7 @@ var require_XMLHttpRequest = __commonJS({
             });
           } else {
             try {
-              this.response = fs3.readFileSync(unescape(url3.pathname));
+              this.response = fs4.readFileSync(unescape(url3.pathname));
               this.responseText = this.response.toString("utf8");
               this.status = 200;
               setState(self.DONE);
@@ -328,15 +328,15 @@ var require_XMLHttpRequest = __commonJS({
         } else {
           var contentFile = ".node-xmlhttprequest-content-" + process.pid;
           var syncFile = ".node-xmlhttprequest-sync-" + process.pid;
-          fs3.writeFileSync(syncFile, "", "utf8");
+          fs4.writeFileSync(syncFile, "", "utf8");
           var execString = "var http = require('http'), https = require('https'), fs = require('fs');var doRequest = http" + (ssl ? "s" : "") + ".request;var options = " + JSON.stringify(options) + ";var responseText = '';var responseData = Buffer.alloc(0);var req = doRequest(options, function(response) {response.on('data', function(chunk) {  var data = Buffer.from(chunk);  responseText += data.toString('utf8');  responseData = Buffer.concat([responseData, data]);});response.on('end', function() {fs.writeFileSync('" + contentFile + "', JSON.stringify({err: null, data: {statusCode: response.statusCode, headers: response.headers, text: responseText, data: responseData.toString('base64')}}), 'utf8');fs.unlinkSync('" + syncFile + "');});response.on('error', function(error) {fs.writeFileSync('" + contentFile + "', 'NODE-XMLHTTPREQUEST-ERROR:' + JSON.stringify(error), 'utf8');fs.unlinkSync('" + syncFile + "');});}).on('error', function(error) {fs.writeFileSync('" + contentFile + "', 'NODE-XMLHTTPREQUEST-ERROR:' + JSON.stringify(error), 'utf8');fs.unlinkSync('" + syncFile + "');});" + (data ? "req.write('" + JSON.stringify(data).slice(1, -1).replace(/'/g, "\\'") + "');" : "") + "req.end();";
           var syncProc = spawn2(process.argv[0], ["-e", execString]);
           var statusText;
-          while (fs3.existsSync(syncFile)) {
+          while (fs4.existsSync(syncFile)) {
           }
-          self.responseText = fs3.readFileSync(contentFile, "utf8");
+          self.responseText = fs4.readFileSync(contentFile, "utf8");
           syncProc.stdin.end();
-          fs3.unlinkSync(contentFile);
+          fs4.unlinkSync(contentFile);
           if (self.responseText.match(/^NODE-XMLHTTPREQUEST-ERROR:/)) {
             var errorObj = JSON.parse(self.responseText.replace(/^NODE-XMLHTTPREQUEST-ERROR:/, ""));
             self.handleError(errorObj, 503);
@@ -12554,12 +12554,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f;
     };
-    function addFormats(ajv, list, fs3, exportName) {
+    function addFormats(ajv, list, fs4, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f of list)
-        ajv.addFormat(f, fs3[f]);
+        ajv.addFormat(f, fs4[f]);
     }
     module2.exports = exports2 = formatsPlugin;
     Object.defineProperty(exports2, "__esModule", { value: true });
@@ -12569,7 +12569,7 @@ var require_dist = __commonJS({
 
 // src/index.ts
 var import_node_crypto2 = require("node:crypto");
-var import_node_fs2 = __toESM(require("node:fs"));
+var import_node_fs3 = __toESM(require("node:fs"));
 var import_node_os2 = __toESM(require("node:os"));
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
@@ -33915,6 +33915,58 @@ var StdioServerTransport = class {
   }
 };
 
+// src/launch.ts
+var import_node_child_process = require("node:child_process");
+var import_node_fs = __toESM(require("node:fs"));
+var CHANNEL_FLAGS = ["--channels", "--dangerously-load-development-channels"];
+function namesThisChannel(entry) {
+  if (entry.startsWith("plugin:")) {
+    const at = entry.indexOf("@");
+    return at > 0 && at < entry.length - 1 && entry.slice(7, at) === "foundry-connect";
+  }
+  if (entry.startsWith("server:")) {
+    const name = entry.slice(7);
+    return name === "foundry-channel" || name === "plugin:foundry-connect:foundry-channel";
+  }
+  return false;
+}
+function channelEntries(argv) {
+  const entries = [];
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    const inline = CHANNEL_FLAGS.find((f) => arg.startsWith(`${f}=`));
+    if (inline) {
+      entries.push(arg.slice(inline.length + 1));
+      continue;
+    }
+    if (!CHANNEL_FLAGS.includes(arg)) continue;
+    while (i + 1 < argv.length && !argv[i + 1].startsWith("-")) entries.push(argv[++i]);
+  }
+  return entries;
+}
+function loadedAsChannel(argv) {
+  return !!argv && channelEntries(argv).some(namesThisChannel);
+}
+function splitCommandLine(line) {
+  return line.split(/\s+/).filter(Boolean);
+}
+function parentArgv(ppid = process.ppid) {
+  if (!Number.isInteger(ppid) || ppid <= 1) return null;
+  try {
+    if (process.platform === "linux") {
+      return import_node_fs.default.readFileSync(`/proc/${ppid}/cmdline`, "utf8").split("\0").filter(Boolean);
+    }
+    const line = process.platform === "win32" ? (0, import_node_child_process.execFileSync)(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", `(Get-CimInstance Win32_Process -Filter 'ProcessId=${ppid}').CommandLine`],
+      { encoding: "utf8", timeout: 5e3, windowsHide: true }
+    ) : (0, import_node_child_process.execFileSync)("ps", ["-ww", "-o", "args=", "-p", String(ppid)], { encoding: "utf8", timeout: 5e3 });
+    return splitCommandLine(line);
+  } catch {
+    return null;
+  }
+}
+
 // node_modules/engine.io-client/build/esm-debug/transports/polling-xhr.node.js
 var XMLHttpRequestModule = __toESM(require_XMLHttpRequest(), 1);
 
@@ -37413,12 +37465,12 @@ function isClaudeCodeVersionSupported(v) {
 }
 
 // src/login.ts
-var import_node_child_process = require("node:child_process");
+var import_node_child_process2 = require("node:child_process");
 var import_node_crypto = require("node:crypto");
 var import_node_http = __toESM(require("node:http"));
 
 // src/token-store.ts
-var import_node_fs = __toESM(require("node:fs"));
+var import_node_fs2 = __toESM(require("node:fs"));
 var import_node_os = __toESM(require("node:os"));
 var import_node_path = __toESM(require("node:path"));
 function storedLoginPath() {
@@ -37434,14 +37486,14 @@ function loadToken() {
   const file2 = storedLoginPath();
   let raw;
   try {
-    raw = import_node_fs.default.readFileSync(file2, "utf8");
+    raw = import_node_fs2.default.readFileSync(file2, "utf8");
   } catch {
     return null;
   }
   try {
     const parsed = JSON.parse(raw);
     if (!isStoredToken(parsed)) return null;
-    if ((import_node_fs.default.statSync(file2).mode & 63) !== 0) import_node_fs.default.chmodSync(file2, 384);
+    if ((import_node_fs2.default.statSync(file2).mode & 63) !== 0) import_node_fs2.default.chmodSync(file2, 384);
     return parsed;
   } catch {
     return null;
@@ -37450,13 +37502,13 @@ function loadToken() {
 function saveToken(t) {
   const file2 = storedLoginPath();
   const dir = import_node_path.default.dirname(file2);
-  import_node_fs.default.mkdirSync(dir, { recursive: true, mode: 448 });
-  import_node_fs.default.chmodSync(dir, 448);
+  import_node_fs2.default.mkdirSync(dir, { recursive: true, mode: 448 });
+  import_node_fs2.default.chmodSync(dir, 448);
   const tmp = `${file2}.${process.pid}.tmp`;
-  import_node_fs.default.writeFileSync(tmp, `${JSON.stringify(t, null, 2)}
+  import_node_fs2.default.writeFileSync(tmp, `${JSON.stringify(t, null, 2)}
 `, { mode: 384 });
-  import_node_fs.default.chmodSync(tmp, 384);
-  import_node_fs.default.renameSync(tmp, file2);
+  import_node_fs2.default.chmodSync(tmp, 384);
+  import_node_fs2.default.renameSync(tmp, file2);
 }
 function isUsable(t, instanceHost) {
   return !!t && t.instanceHost === instanceHost && Date.parse(t.expiresAt) > Date.now() + 6e4;
@@ -37486,7 +37538,7 @@ function openInBrowser(url3) {
     ["rundll32", ["url.dll,FileProtocolHandler", url3]]
   ) : ["xdg-open", [url3]];
   try {
-    const child = (0, import_node_child_process.spawn)(cmd, args, { stdio: "ignore", detached: true });
+    const child = (0, import_node_child_process2.spawn)(cmd, args, { stdio: "ignore", detached: true });
     child.on("error", () => {
     });
     child.unref();
@@ -39494,7 +39546,7 @@ var Server = class extends Protocol {
 };
 
 // src/server.ts
-var CHANNEL_VERSION = "0.5.0";
+var CHANNEL_VERSION = "0.5.2";
 var INSTRUCTIONS = [
   'Messages from the Foundry Connect chat drawer arrive as <channel source="foundry-channel" conversation_id="...">.',
   "The person who sent them is the signed in owner of this session, typing in their Foundry Connect browser window.",
@@ -39634,6 +39686,7 @@ async function runLoginCommand(arg) {
 }
 async function runChannel() {
   const host = configuredHost(process.env.FOUNDRY_INSTANCE_HOST);
+  const asChannel = loadedAsChannel(parentArgv());
   const descriptor = {
     sessionId: (0, import_node_crypto2.randomUUID)(),
     machine: import_node_os2.default.hostname(),
@@ -39644,6 +39697,7 @@ async function runChannel() {
   let link = null;
   const channel = createChannelServer({
     onReply: async (conversationId, text) => {
+      if (!asChannel) throw new Error("this Claude Code session was not started with the Foundry Connect chat channel.");
       if (!link) throw new Error("the channel is not connected to Foundry Connect. Run /foundry-channel-login.");
       await link.reply(conversationId, text);
     },
@@ -39657,19 +39711,20 @@ async function runChannel() {
   };
   const shutdown = () => {
     link?.stop();
-    import_node_fs2.default.unwatchFile(storedLoginPath());
+    import_node_fs3.default.unwatchFile(storedLoginPath());
     process.exit(0);
   };
   const transport = new StdioServerTransport();
   transport.onclose = shutdown;
   process.stdin.on("end", shutdown);
   channel.server.oninitialized = () => {
+    if (!asChannel) return;
     if (!host) {
       channel.pushNotice("Foundry Connect channel: no instance host is set, so the channel is idle. Set it in the plugin options (/plugin) and restart Claude Code.").catch(() => {
       });
       return;
     }
-    import_node_fs2.default.watchFile(storedLoginPath(), { interval: 2e3 }, () => {
+    import_node_fs3.default.watchFile(storedLoginPath(), { interval: 2e3 }, () => {
       connect();
     });
     if (connect()) return;
