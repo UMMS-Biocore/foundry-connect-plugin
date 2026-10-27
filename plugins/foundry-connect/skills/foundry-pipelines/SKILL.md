@@ -36,5 +36,6 @@ note the two most common causes: the session was not restarted after installing,
 | Build, copy or extend a whole pipeline (wire processes together) | the `foundry-pipeline-dev` skill |
 | Start a run from a pipeline (or duplicate a run), fill inputs, choose where it runs, launch, then monitor | `references/execute.md` |
 | List/launch an app and return its link | `references/apps.md` |
+| Run commands in a workspace, or a chain of steps that should keep going after the session closes | `references/workspaces.md` |
 
 If unsure which, ask one clarifying question, then open the matching reference.

@@ -1,7 +1,7 @@
 {
   "name": "foundry-connect",
   "displayName": "Foundry Connect",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Run the Foundry Connect pipeline lifecycle from Claude: explore runs, access and analyze results, share them back, author processes, build or extend pipelines, and launch runs and apps over the Foundry Connect remote MCP server. Includes the foundry-pipelines and foundry-pipeline-dev skills, the /foundry-* commands, and an optional chat channel.",
   "author": {
     "name": "UMMS Biocore",
