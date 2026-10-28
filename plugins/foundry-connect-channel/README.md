@@ -36,8 +36,9 @@ The plugin declares one MCP server, **`foundry-channel`** (shown as "Foundry Con
 
 - Claude Code starts it as a **Node.js process** on your machine, running the bundled
   `channel/dist/channel.js`. Node 18 or later is required, and nothing is downloaded or installed
-  at run time. The readable source is in `channel/src/`, and CI fails when the committed bundle
-  differs from a fresh build of it.
+  at run time. The readable source is outside the plugin, in
+  [`channel/src/`](https://github.com/UMMS-Biocore/foundry-connect-plugin/tree/main/channel/src)
+  at the repository root, and CI fails when the committed bundle differs from a fresh build of it.
 - It does anything only in a session **started as a channel**, that is with
   `--channels plugin:foundry-connect-channel@foundry-connect` (or the development flag above).
   Claude Code does not tell the channel which sessions those are, so it reads the command line

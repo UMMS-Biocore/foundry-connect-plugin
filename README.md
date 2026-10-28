@@ -141,7 +141,8 @@ remote MCP connection.
 On Claude Code, an optional second plugin, `foundry-connect-channel`, links a session to the
 Foundry Connect chat drawer. It runs a Node.js process, opens a socket connection to your instance
 and stores its own sign in. [`plugins/foundry-connect-channel/README.md`](plugins/foundry-connect-channel/README.md)
-covers how to install it and what it sends.
+covers how to install it and what it sends. The plugin ships only the built bundle. Its readable
+source, tests and lockfile are in [`channel/`](channel/) at the repository root.
 
 ## Safety
 

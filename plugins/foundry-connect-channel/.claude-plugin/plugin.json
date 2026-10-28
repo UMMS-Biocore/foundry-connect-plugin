@@ -1,7 +1,7 @@
 {
   "name": "foundry-connect-channel",
   "displayName": "Foundry Connect chat channel",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Optional companion to the foundry-connect plugin: a local Claude Code channel that links a terminal session to the Foundry Connect chat drawer, so messages typed in the web app reach this session. Includes the /foundry-channel-login command.",
   "author": {
     "name": "UMMS Biocore",

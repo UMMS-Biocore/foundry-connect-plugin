@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { REQUEST_ID_PATTERN, type PageContext, type PermissionBehavior } from './envelope.js';
 
-export const CHANNEL_VERSION = '0.6.0';
+export const CHANNEL_VERSION = '0.6.1';
 
 export type PermissionRequest = {
   requestId: string;

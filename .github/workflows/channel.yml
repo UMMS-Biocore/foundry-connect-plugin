@@ -3,11 +3,13 @@ name: channel
 on:
   pull_request:
     paths:
+      - 'channel/**'
       - 'plugins/foundry-connect-channel/channel/**'
       - '.github/workflows/channel.yml'
   push:
     branches: [main]
     paths:
+      - 'channel/**'
       - 'plugins/foundry-connect-channel/channel/**'
       - '.github/workflows/channel.yml'
 
@@ -23,19 +25,23 @@ jobs:
         node: ['18', '20']
     defaults:
       run:
-        working-directory: plugins/foundry-connect-channel/channel
+        working-directory: channel
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
           cache: npm
-          cache-dependency-path: plugins/foundry-connect-channel/channel/package-lock.json
+          cache-dependency-path: channel/package-lock.json
       - run: npm ci --no-audit --no-fund
       - run: npm run typecheck
       - run: npm test
       - name: Committed bundle matches a fresh build
         # ls-files first: a deleted bundle would come back untracked and pass the diff
         run: |
-          git ls-files --error-unmatch dist/channel.js
-          git diff --exit-code -- dist/channel.js
+          git ls-files --error-unmatch ../plugins/foundry-connect-channel/channel/dist/channel.js
+          git diff --exit-code -- ../plugins/foundry-connect-channel/channel/dist/channel.js
+      - name: Plugin folder holds only the bundle
+        # the source, lockfile and test build stay outside the shipped plugin
+        working-directory: plugins/foundry-connect-channel/channel
+        run: test "$(git ls-files)" = "dist/channel.js"

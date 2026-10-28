@@ -1,6 +1,6 @@
 {
   "name": "foundry-connect-channel",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": true,
   "description": "Local Claude Code channel that links a terminal session to the Foundry Connect chat drawer.",
   "license": "Apache-2.0",
