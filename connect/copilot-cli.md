@@ -8,8 +8,7 @@ Copilot reads its own manifest, `plugins/foundry-connect/.github/plugin/plugin.j
 at `mcp/copilot.json`. That file keeps the bare `${instance_host}` variable Copilot expands from
 your environment. Claude Code reads `.claude-plugin/plugin.json` and `mcp/claude.json` instead,
 where the same URL uses Claude Code's `${user_config.instance_host}`. The Claude Code chat channel
-(`foundry-channel`) is not part of the Copilot config, so `/foundry-channel-login` does nothing
-useful on Copilot.
+is a separate plugin, `foundry-connect-channel`, and is not for Copilot.
 
 Measured against `GitHub Copilot CLI 1.0.84`.
 
@@ -98,11 +97,11 @@ the plugin (`copilot plugin update foundry-connect`); the separate Copilot manif
 version 0.5.0.
 
 **The install says `Installed 2 skills` but more appear.** That is expected. The count covers the
-`skills/` directory only, while the four command wrappers are converted into skills as well. Check
+`skills/` directory only, while the three command wrappers are converted into skills as well. Check
 with `copilot plugins list` rather than trusting the count.
 
 **A command name clashes with another plugin.** The converted commands arrive as bare
-`foundry-results`, `foundry-run`, `foundry-status` and `foundry-channel-login`, without the `foundry-connect:` prefix that
+`foundry-results`, `foundry-run` and `foundry-status`, without the `foundry-connect:` prefix that
 real skills get. Two plugins shipping the same command name collide, and only one survives.
 
 **A deprecation warning on install.** Installing from a local path, a Git URL or a bare repository

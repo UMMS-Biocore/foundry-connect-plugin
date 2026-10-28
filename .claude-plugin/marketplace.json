@@ -17,6 +17,17 @@
         "name": "UMMS Biocore",
         "email": "alper.kucukural@umassmed.edu"
       }
+    },
+    {
+      "name": "foundry-connect-channel",
+      "source": "./plugins/foundry-connect-channel",
+      "description": "Optional companion to foundry-connect: a local channel that links a Claude Code terminal session to the Foundry Connect chat drawer.",
+      "category": "development",
+      "homepage": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
+      "author": {
+        "name": "UMMS Biocore",
+        "email": "alper.kucukural@umassmed.edu"
+      }
     }
   ]
 }

@@ -1,6 +1,6 @@
 ---
 description: Sign the Foundry Connect channel in again, for example after it reports that its sign in expired.
-allowed-tools: Bash(node:*)
+allowed-tools: Bash(node ${CLAUDE_PLUGIN_ROOT}/channel/dist/channel.js login:*)
 ---
 
 Run this command with the Bash tool, exactly as written:

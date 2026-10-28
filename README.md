@@ -2,9 +2,8 @@
 
 `foundry-connect` connects [Foundry Connect](https://viafoundry.umassmed.edu/docs/), the
 bioinformatics pipeline platform, to the assistant you already work in. It ships one plugin (the
-`foundry-pipelines` and `foundry-pipeline-dev` skills plus the `/foundry-run`, `/foundry-status`,
-`/foundry-results` and `/foundry-channel-login` commands, and on Claude Code an optional chat
-channel to the Foundry Connect web app) that
+`foundry-pipelines` and `foundry-pipeline-dev` skills plus the `/foundry-run`, `/foundry-status`
+and `/foundry-results` commands) that
 installs on Claude Code, GitHub Copilot and Codex, plus per-surface connect guides for the web and
 desktop apps, all built on Foundry Connect's remote MCP server. Once connected, you can explore runs,
 pull result files, analyze data in chat, share results back, and duplicate or launch pipeline runs,
@@ -137,8 +136,12 @@ Connect as an MCP connector rather than as a plugin.
 
 [`plugins/foundry-connect/README.md`](plugins/foundry-connect/README.md) lists every skill and
 command, and discloses what the plugin runs on your machine and what it sends: the `foundry`
-remote MCP connection, and on Claude Code the `foundry-channel` Node.js process that links a
-session to the Foundry Connect chat drawer over a socket connection and stores its own sign in.
+remote MCP connection.
+
+On Claude Code, an optional second plugin, `foundry-connect-channel`, links a session to the
+Foundry Connect chat drawer. It runs a Node.js process, opens a socket connection to your instance
+and stores its own sign in. [`plugins/foundry-connect-channel/README.md`](plugins/foundry-connect-channel/README.md)
+covers how to install it and what it sends.
 
 ## Safety
 

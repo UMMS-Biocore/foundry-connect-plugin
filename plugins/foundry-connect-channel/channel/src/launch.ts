@@ -12,11 +12,11 @@ const CHANNEL_FLAGS = ['--channels', '--dangerously-load-development-channels'];
 function namesThisChannel(entry: string): boolean {
   if (entry.startsWith('plugin:')) {
     const at = entry.indexOf('@');
-    return at > 0 && at < entry.length - 1 && entry.slice(7, at) === 'foundry-connect';
+    return at > 0 && at < entry.length - 1 && entry.slice(7, at) === 'foundry-connect-channel';
   }
   if (entry.startsWith('server:')) {
     const name = entry.slice(7);
-    return name === 'foundry-channel' || name === 'plugin:foundry-connect:foundry-channel';
+    return name === 'foundry-channel' || name === 'plugin:foundry-connect-channel:foundry-channel';
   }
   return false;
 }

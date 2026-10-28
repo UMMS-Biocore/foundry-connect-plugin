@@ -1,0 +1,38 @@
+{
+  "name": "foundry-connect-channel",
+  "displayName": "Foundry Connect chat channel",
+  "version": "0.6.0",
+  "description": "Optional companion to the foundry-connect plugin: a local Claude Code channel that links a terminal session to the Foundry Connect chat drawer, so messages typed in the web app reach this session. Includes the /foundry-channel-login command.",
+  "author": {
+    "name": "UMMS Biocore",
+    "email": "alper.kucukural@umassmed.edu"
+  },
+  "homepage": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
+  "repository": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
+  "documentationUrl": "https://viafoundry.umassmed.edu/docs/developer-guides/using-viafoundry-with-claude/",
+  "supportUrl": "https://viafoundry.umassmed.edu/docs/resources/contact-support/",
+  "privacyPolicyUrl": "https://viafoundry.umassmed.edu/docs/privacy-policy/",
+  "termsOfServiceUrl": "https://github.com/UMMS-Biocore/foundry-connect-plugin/blob/main/LICENSE",
+  "license": "Apache-2.0",
+  "keywords": [
+    "foundry-connect",
+    "bioinformatics",
+    "channel",
+    "chat"
+  ],
+  "icon": "./assets/icon.svg",
+  "userConfig": {
+    "instance_host": {
+      "type": "string",
+      "title": "Foundry Connect instance hostname",
+      "description": "Your Foundry Connect HOSTNAME ONLY, e.g. foundry.your-org.edu. Do not include https://, do not include a trailing slash, and do not include /mcp. Use the same hostname you gave the foundry-connect plugin."
+    }
+  },
+  "mcpServers": "./mcp/claude.json",
+  "channels": [
+    {
+      "server": "foundry-channel",
+      "displayName": "Foundry Connect chat"
+    }
+  ]
+}

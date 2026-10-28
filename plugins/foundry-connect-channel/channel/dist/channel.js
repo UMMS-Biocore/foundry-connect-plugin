@@ -33922,11 +33922,11 @@ var CHANNEL_FLAGS = ["--channels", "--dangerously-load-development-channels"];
 function namesThisChannel(entry) {
   if (entry.startsWith("plugin:")) {
     const at = entry.indexOf("@");
-    return at > 0 && at < entry.length - 1 && entry.slice(7, at) === "foundry-connect";
+    return at > 0 && at < entry.length - 1 && entry.slice(7, at) === "foundry-connect-channel";
   }
   if (entry.startsWith("server:")) {
     const name = entry.slice(7);
-    return name === "foundry-channel" || name === "plugin:foundry-connect:foundry-channel";
+    return name === "foundry-channel" || name === "plugin:foundry-connect-channel:foundry-channel";
   }
   return false;
 }
@@ -39546,7 +39546,7 @@ var Server = class extends Protocol {
 };
 
 // src/server.ts
-var CHANNEL_VERSION = "0.5.2";
+var CHANNEL_VERSION = "0.6.0";
 var INSTRUCTIONS = [
   'Messages from the Foundry Connect chat drawer arrive as <channel source="foundry-channel" conversation_id="...">.',
   "The person who sent them is the signed in owner of this session, typing in their Foundry Connect browser window.",
