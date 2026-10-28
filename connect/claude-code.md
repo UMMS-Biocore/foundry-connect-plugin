@@ -33,6 +33,7 @@ This installs, in one step:
 - the `foundry-pipelines` skill (explore/analyze/share-back/author/execute/apps, with confirm-
   before-write built in)
 - the `foundry-pipeline-dev` skill (build, copy or extend a pipeline graph from a JSON spec)
+- the `foundry-kb` skill (answer questions about a project from its knowledge base, with cited numbers and plots)
 - the `/foundry-run`, `/foundry-status`, `/foundry-results` slash commands
 - the `foundry` remote MCP server pointed at your instance
 

@@ -26,7 +26,7 @@ codex plugin marketplace add UMMS-Biocore/foundry-connect-plugin
 codex plugin add foundry-connect@foundry-connect
 ```
 
-That gives you the `foundry-pipelines` and `foundry-pipeline-dev` skills and the three command wrappers.
+That gives you the `foundry-pipelines`, `foundry-pipeline-dev` and `foundry-kb` skills and the three command wrappers.
 
 ## Check your instance supports OAuth
 
