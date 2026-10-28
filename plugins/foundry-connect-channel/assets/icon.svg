@@ -1,0 +1,7 @@
+<svg width="512" height="512" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Foundry Connect">
+  <rect width="120" height="120" rx="26" fill="#2450E6"/>
+  <g transform="translate(16.8,16.8) scale(1.8)" fill="none" stroke="#FFFFFF" stroke-width="4">
+    <rect x="8" y="15" width="21" height="18" rx="9"/>
+    <rect x="19" y="15" width="21" height="18" rx="9"/>
+  </g>
+</svg>

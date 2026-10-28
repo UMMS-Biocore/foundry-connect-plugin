@@ -2,7 +2,7 @@
 
 How Foundry Connect stores a pipeline graph, as its web editor saves it. Read this when a spec
 will not plan, when an edge looks wrong in the editor, or when you need to reason about a saved
-pipeline from `pipeline.py show`. The SDK (`viafoundry.pipelines`) writes all of this for you.
+pipeline from `get_pipeline`. The MCP pipeline tools write all of this for you.
 
 ## Endpoints
 

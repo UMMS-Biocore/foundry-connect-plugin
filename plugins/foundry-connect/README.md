@@ -34,9 +34,8 @@ this repository.
   inspect runs, access and download result files, analyze data in chat, share results back,
   author or duplicate processes, execute a run, or launch an app.
 - **foundry-pipeline-dev**: builds, extends, copies or rewires a pipeline. It designs the graph,
-  creates the processes a step needs, builds and type checks the graph (with a bundled script
-  where there is a shell, or the MCP pipeline tools on claude.ai), creates the pipeline, and
-  starts a first test run.
+  creates the processes a step needs, builds and type checks the graph with the MCP pipeline
+  tools, creates the pipeline, and starts a first test run.
 
 ## Commands
 
@@ -45,44 +44,18 @@ this repository.
 - **`/foundry-status`**: shows a run's status and timings, and explains why it failed if it did.
 - **`/foundry-results`**: lists a run's result files and reports, and loads the ones you ask for.
   Read only.
-- **`/foundry-channel-login`**: signs the chat channel in again, for example after its sign in
-  expired.
 
 ## What this plugin runs and sends
 
-The plugin declares two MCP servers.
+The plugin declares one MCP server and runs nothing on your machine.
 
 **`foundry`** is a remote HTTP connection to `https://<your hostname>/mcp`. Every tool call goes
 to your own Foundry Connect instance and to nothing else. Sign in uses OAuth, and Claude Code
-stores the result.
+stores the result. The plugin never reads credentials from your machine.
 
-**`foundry-channel`** (shown as "Foundry Connect chat") is a local channel that links this Claude
-Code session to the chat drawer in the Foundry Connect web app, so you can talk to the session
-from the browser. Specifically:
-
-- Claude Code starts it as a **Node.js process** on your machine, running the bundled
-  `channel/dist/channel.js`. Node 18 or later is required, and nothing is downloaded or installed
-  at run time.
-- It does anything only in a session **started as a channel**, that is with
-  `--channels plugin:foundry-connect@foundry-connect` (or, while the channel is not on the
-  approved list, `--dangerously-load-development-channels plugin:foundry-connect@foundry-connect`).
-  Claude Code does not tell the channel which sessions those are, so it reads the command line
-  Claude Code was started with. In every other session it stays idle: it opens no connection,
-  does not appear in the drawer, and never opens the browser.
-- It opens a **socket connection** (Socket.IO over HTTPS) to your Foundry Connect instance, to the
-  same hostname you configured. It does not contact any other host.
-- On connect it sends a session descriptor: a random session id, your machine's hostname, the
-  folder Claude Code was started in, the start time, and the channel version. After that it
-  carries messages you send from the drawer into this session, Claude's replies back to the
-  drawer, and tool permission prompts you choose to answer from the drawer.
-- On its first start as a channel it opens your browser once to sign in. The resulting **sign in is stored** in
-  `~/.config/foundry-connect/channel.json` (or under `$XDG_CONFIG_HOME`). It is never printed,
-  logged or sent to Claude, and it works only against the instance it was issued for.
-- **`/foundry-channel-login`** runs `node channel/dist/channel.js login` to sign in again. It prints
-  status lines only. The running channel picks up the new sign in within a few seconds.
-
-If no hostname is configured, the channel stays idle and connects to nothing. Disable it from
-`/mcp` if you do not use the chat drawer; the `foundry` tools keep working without it.
+The chat channel that links a Claude Code session to the Foundry Connect chat drawer is a separate,
+optional plugin, `foundry-connect-channel`. See
+[`plugins/foundry-connect-channel/README.md`](https://github.com/UMMS-Biocore/foundry-connect-plugin/tree/main/plugins/foundry-connect-channel).
 
 The plugin on the Claude web and desktop apps (claude.ai, Cowork) delivers the skills only. Those
 surfaces connect Foundry Connect as a separate MCP connector; see the `connect/` guides.
