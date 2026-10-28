@@ -12,8 +12,8 @@ that runs.
 
 Processes are authored through the Foundry Connect MCP tools (see the `foundry-pipelines` skill,
 `references/author.md`). The graph is built with the Foundry Connect MCP pipeline tools, on every
-host. They sign in through the connector, so nothing is installed and no credential is read from
-the user's machine.
+host. They sign in through the connector in the browser, so nothing is installed on the user's
+machine.
 
 ## The pipeline tools
 
@@ -36,8 +36,8 @@ editable by the signed in account; offer `create_pipeline` for a private copy in
 updated yet. Tell the user so, and stop at that step (they can wire the graph in the web editor:
 Pipelines, New Pipeline, drag the processes in). Do not fall back to raw API calls.
 
-Never ask the user for a token or password, and never put one in a command: sign in is the
-connector's job.
+Sign in is the connector's job. Never ask the user for sign in details, and never put them in a
+command.
 
 ## Safety (always apply)
 
@@ -76,7 +76,8 @@ anything; graph changes are cheap now and costly later.
   - An output name is pasted verbatim into the generated Nextflow `output:` line. A file name like
     `report.txt` must be passed **with quotes**, `"\"report.txt\""`; unquoted it fails at run time
     with "Cannot get property 'txt' on null object".
-  - `create_process_config` wraps `script_body` in the script block itself; pass plain shell.
+  - `create_process_config` wraps `script_body` in the script block itself, so give it shell
+    commands only, without a script block around them.
 - Process ids and pipeline ids are separate number spaces. Process 1545 is not pipeline 1545.
 
 ### 3. Write the graph and plan it
