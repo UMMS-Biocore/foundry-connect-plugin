@@ -6,13 +6,18 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-const bundle = fileURLToPath(new URL('../dist/channel.js', import.meta.url));
+const bundle = fileURLToPath(
+  new URL('../../plugins/foundry-connect-channel/channel/dist/channel.js', import.meta.url),
+);
 
-// A child environment with an empty config directory and no instance host.
+// A child environment with an empty config directory and no instance host. Only the
+// variables the channel needs are passed, never the rest of the parent environment.
 function cleanEnv() {
-  const childEnv = { ...process.env, XDG_CONFIG_HOME: fs.mkdtempSync(path.join(os.tmpdir(), 'fc-bundle-')) };
-  delete childEnv.FOUNDRY_INSTANCE_HOST;
-  return childEnv;
+  return {
+    PATH: process.env.PATH,
+    HOME: process.env.HOME,
+    XDG_CONFIG_HOME: fs.mkdtempSync(path.join(os.tmpdir(), 'fc-bundle-')),
+  };
 }
 
 test('bundled channel starts and exits when stdin closes', async () => {
