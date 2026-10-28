@@ -1,7 +1,7 @@
 # Connect: GitHub Copilot CLI
 
 Copilot CLI reads this repository as a plugin marketplace and installs the same plugin Claude Code
-uses. You get the `foundry-pipelines` and `foundry-pipeline-dev` skills, the `/foundry-*` command wrappers, and the
+uses. You get the `foundry-pipelines`, `foundry-pipeline-dev` and `foundry-kb` skills, the `/foundry-*` command wrappers, and the
 `foundry` MCP server, all from one install.
 
 Copilot reads its own manifest, `plugins/foundry-connect/.github/plugin/plugin.json`, which points

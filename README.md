@@ -2,7 +2,7 @@
 
 `foundry-connect` connects [Foundry Connect](https://viafoundry.umassmed.edu/docs/), the
 bioinformatics pipeline platform, to the assistant you already work in. It ships one plugin (the
-`foundry-pipelines` and `foundry-pipeline-dev` skills plus the `/foundry-run`, `/foundry-status`
+`foundry-pipelines`, `foundry-pipeline-dev` and `foundry-kb` skills plus the `/foundry-run`, `/foundry-status`
 and `/foundry-results` commands) that
 installs on Claude Code, GitHub Copilot and Codex, plus per-surface connect guides for the web and
 desktop apps, all built on Foundry Connect's remote MCP server. Once connected, you can explore runs,

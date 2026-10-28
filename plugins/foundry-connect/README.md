@@ -37,6 +37,11 @@ this repository.
   creates the processes a step needs, builds and type checks the graph with the MCP pipeline
   tools, creates the pipeline, and starts a first test run.
 
+- **foundry-kb**: answers a question about a project from a local clone of its knowledge base.
+  It reads the brief, searches the raw sources and claims, gets every number and plot from a
+  workspace job with a provenance block, and answers in labelled blocks with citations, or
+  abstains when the evidence is missing.
+
 ## Commands
 
 - **`/foundry-run`**: starts a run from a pipeline (or copies an existing run), fills its inputs,

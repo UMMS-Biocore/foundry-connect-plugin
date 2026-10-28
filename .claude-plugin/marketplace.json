@@ -10,7 +10,7 @@
     {
       "name": "foundry-connect",
       "source": "./plugins/foundry-connect",
-      "description": "Run the Foundry Connect pipeline lifecycle from Claude: explore runs, access data, share results, author processes, build or extend pipelines, and duplicate and execute runs and apps.",
+      "description": "Run the Foundry Connect pipeline lifecycle from Claude: explore runs, access data, share results, author processes, build or extend pipelines, duplicate and execute runs and apps, and answer questions from a project knowledge base.",
       "category": "development",
       "homepage": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
       "author": {

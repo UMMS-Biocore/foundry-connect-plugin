@@ -74,6 +74,8 @@ cp -R foundry-connect-plugin/plugins/foundry-connect/skills/foundry-pipelines \
       ~/.agents/skills/foundry-pipelines
 cp -R foundry-connect-plugin/plugins/foundry-connect/skills/foundry-pipeline-dev \
       ~/.agents/skills/foundry-pipeline-dev
+cp -R foundry-connect-plugin/plugins/foundry-connect/skills/foundry-kb \
+      ~/.agents/skills/foundry-kb
 ```
 
 If it is not picked up, try `~/.codex/skills/` instead. Invoke skills with `$foundry-pipelines`.
