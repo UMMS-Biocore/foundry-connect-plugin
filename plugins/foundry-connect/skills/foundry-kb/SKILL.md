@@ -95,12 +95,18 @@ For any number about the data, and for any plot, follow `references/plot-job.md`
    `get_all_report_paths(report_id=<run id>)`. Use the path exactly as listed.
 2. Reuse a ready workspace on the project's run environment (`workspace_list`), or, after a
    "yes", create one with `workspace_create`.
-3. Write the job script for the question. It downloads each named report file, computes its
-   sha256 over the bytes it parsed, applies the filter, computes or draws, and writes four
-   outputs: the figure (for a plot), the values table, one provenance block per input file
-   `{run, file, sha256, filter, rows_read}`, and the script itself.
-4. After a "yes", submit it with `workspace_run`, then follow it with `workspace_job_status`.
-   If it returns `awaiting_approval`, share the `approve_at` link; no tool can approve it.
+3. Choose the job's `submission_key`, then write the job script for the question. It downloads
+   each named report file, computes its sha256 over the bytes it parsed, applies the filter,
+   computes or draws, and writes into `/workspace/outputs/<submission_key>/` the fixed names
+   `figure.png` (for a plot, a PNG of at most 384 KiB), `values.csv` (at most 500 rows come
+   back), `provenance.json` (one block per input file `{run, file, sha256, filter, rows_read}`,
+   `rows_read` the data rows before the filter, header excluded) and `script.py` (itself).
+4. After a "yes", submit it with `workspace_run` under that key, then follow it with
+   `workspace_job_status`. If it returns `awaiting_approval`, share the `approve_at` link; no
+   tool can approve it.
+5. When the status is `completed` or `failed`, call `get_job_result(workspace_id,
+   submission_key)` (read only). Bind every number to the `values` and `provenance` it returns,
+   and show its figure. Never read values from the job's stdout.
 
 A question with no number in it (what a paper says, which comparisons a run has) needs no job.
 
@@ -109,9 +115,10 @@ A question with no number in it (what a paper says, which comparisons a run has)
 Write the answer under these four headings, in this order, with the bindings of
 `references/answer-contract.md`:
 
-- **From your data**: only values a job returned in this conversation, each bound with `[prov:
-  ...]` or `[src: job://...]`. For a plot, show the figure, the plotted values (or the first rows
-  and the job output path when there are many), and the provenance block.
+- **From your data**: only values `get_job_result` returned in this conversation, each bound
+  with `[prov: ...]` or `[src: job://...]`. For a plot, show the figure, the plotted values (or
+  the first rows and the job's `output_dir` when `values.truncated` is true), and the provenance
+  block.
 - **From the literature**: each statement cited to a passage `[src: raw/...#sec=...]` or a claim
   `[claim: <id>]`.
 - **Synthesis**: your own reasoning on how the two relate, labelled as such. No new numbers.
@@ -131,5 +138,8 @@ provenance block as returned, so the reader can rerun it.
 - **No run environment with container execution, or the job is refused**: report the refusal's
   `reason` (and `next_step` when it has one). Do not fall back to your own arithmetic; abstain on
   the numbers.
-- **The job cannot return its outputs to the conversation**: say where the outputs are and
-  abstain on the numbers until they can be read.
+- **The job cannot return its outputs to the conversation**: `get_job_result` answers
+  `result_not_supported` (for example an older remote compute agent on the run environment),
+  `result_unreadable` or `environment_unreachable`, lists a file in `unavailable`, or the tool is
+  missing. Report it, say the outputs are in the workspace under `outputs/<submission_key>/`, and
+  abstain on the numbers. Never fall back to stdout, your own arithmetic or a local table.
