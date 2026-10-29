@@ -95,7 +95,7 @@ Question: "Is GENEA up in treated cells, and does that match the literature?"
 > **Provenance**
 >
 > Workspace ws-0001, submission keys sk-7a1 and sk-7a2. Provenance blocks as returned:
-> `{run: 5001, file: DE/TRT_vs_CON.DE.csv, sha256: 3f9a0c12b7de..., filter: "padj < 0.05", rows_read: 18342}`.
+> `{run: "5001", file: DE/TRT_vs_CON.DE.csv, sha256: 3f9a0c12b7de..., filter: "padj < 0.05", rows_read: 18342}`.
 
 An abstaining answer to "what does the literature say about GENEB" writes, under From the
 literature: "No paper or claim in this KB discusses GENEB." and nothing more there.
