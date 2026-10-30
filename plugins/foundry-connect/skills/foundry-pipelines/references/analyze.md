@@ -1,7 +1,7 @@
 # Analyze loaded data
 
 Purpose: once result data has been pulled into the conversation with `load_file` (a page of rows at
-a time) or fetched into the code sandbox with `download_file` (see `explore-access.md`), analyzing it is **native Claude reasoning in chat — no MCP tool call
+a time: `offset`, `limit` up to 2000, `columns`, then `next_offset` while `has_more` is true, at most 80,000 characters per answer) or fetched into the code sandbox with `download_file` (see `explore-access.md`; in claude.ai the sandbox may get a proxy 403 on the download link, and paging with `load_file` is the way through), analyzing it is **native Claude reasoning in chat — no MCP tool call
 involved**. There is no separate "analyze" tool; this file just describes how to do that reasoning
 well.
 
