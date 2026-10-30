@@ -3,6 +3,6 @@ description: List and load result files/reports for a Foundry Connect run.
 ---
 
 Use the `foundry-pipelines` skill's `references/explore-access.md`: for the named run, call `get_all_report_paths` / `list_files`,
-show what's available, and `load_file` the ones the user asks for. Read-only.
+show what's available, and `load_file` the ones the user asks for, a page of rows at a time (follow `next_offset` only as far as the question needs). Read-only.
 
 $ARGUMENTS
