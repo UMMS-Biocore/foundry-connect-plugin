@@ -1,7 +1,7 @@
 # Analyze loaded data
 
-Purpose: once result data has been pulled into the conversation with `load_file` or `download_file`
-(see `explore-access.md`), analyzing it is **native Claude reasoning in chat — no MCP tool call
+Purpose: once result data has been pulled into the conversation with `load_file` (a page of rows at
+a time) or fetched into the code sandbox with `download_file` (see `explore-access.md`), analyzing it is **native Claude reasoning in chat — no MCP tool call
 involved**. There is no separate "analyze" tool; this file just describes how to do that reasoning
 well.
 
