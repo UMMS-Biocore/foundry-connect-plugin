@@ -1,13 +1,13 @@
 ---
 name: foundry-pipeline-dev
-description: Use when a user wants to build, extend, copy or rewire a Foundry Connect pipeline: wiring processes into a multi-step pipeline, adding a step to an existing pipeline, making their own copy of a pipeline to change it, creating a new process for a pipeline step, or test-running a pipeline they are developing. Use it even when they say "workflow" or "add a step" instead of "pipeline", or ask to "build a pipeline from these scripts". Covers designing the graph, creating processes, building and type-checking the graph from a JSON spec, creating the pipeline, and a first test run, with confirm-before-write safety.
+description: Use when a user wants to build, extend, copy or rewire a Foundry Connect pipeline: wiring processes into a multi-step pipeline, adding a step to an existing pipeline, making their own copy of a pipeline to change it, creating a new process for a pipeline step, or test-running a pipeline they are developing. Use it even when they say "workflow" or "add a step" instead of "pipeline", or ask to "build a pipeline from these scripts". Covers designing the graph, reusing existing pipelines as modules, creating processes, building and type-checking the graph from a JSON spec, creating the pipeline, and a first test run, with confirm-before-write safety.
 ---
 
 # Foundry Connect pipeline development
 
-A Foundry Connect pipeline is a graph: **process** nodes (one step each), pipeline **input** nodes
-(the fields people fill in on the run page) and pipeline **output** nodes (published results and
-reports), joined by typed edges. This skill takes a user from "I have these steps" to a pipeline
+A Foundry Connect pipeline is a graph: **process** nodes (one step each), **module** nodes (a whole
+existing pipeline used as one step), pipeline **input** nodes (the fields people fill in on the run
+page) and pipeline **output** nodes (published results and reports), joined by typed edges. This skill takes a user from "I have these steps" to a pipeline
 that runs.
 
 Processes are authored through the Foundry Connect MCP tools (see the `foundry-pipelines` skill,
@@ -19,12 +19,14 @@ machine.
 
 | Step | MCP tool | Writes? |
 | --- | --- | --- |
+| find pipelines | `list_pipelines(search)`, `list_featured_pipelines()`: existing pipelines to reuse as modules | no |
 | revisions | `list_pipeline_revisions(pipeline_id)`: every revision, each with its own id and version | no |
+| module ports | `get_pipeline_ports(pipeline_id)`: a pipeline's inputs and outputs when used as a module | no |
 | process slots | `get_process_details(process_id)`, `get_process_parameters(...)`: inputs and outputs in order | no |
-| show | `get_pipeline(pipeline_id)`: graph plus `connections` and `unconnected_inputs` | no |
-| plan | `create_pipeline_config(name, pipeline_group_id, processes, connections, inputs, outputs, ...)`: builds and type-checks the graph | no |
+| show | `get_pipeline(pipeline_id)`: graph plus `modules`, `connections` and `unconnected_inputs` | no |
+| plan | `create_pipeline_config(name, pipeline_group_id, processes, modules, connections, inputs, outputs, ...)`: builds and type-checks the graph | no |
 | create | `create_pipeline(...same arguments..., confirm_create=true)`, always new and private | yes |
-| update | `update_pipeline(pipeline_id, processes, connections, confirm_update=true, ...)`: replaces the graph | yes |
+| update | `update_pipeline(pipeline_id, processes, modules, connections, confirm_update=true, ...)`: replaces the graph | yes |
 
 Before a create, run `create_pipeline_config` and show the user its `connections` and
 `unconnected_inputs`. Before an update, show `get_pipeline` for the current graph next to the new
@@ -65,7 +67,26 @@ file, a set per sample, or a value), which inputs a person fills in on the run p
 results should be published as reports. A short table is enough. Settle it before creating
 anything; graph changes are cheap now and costly later.
 
-### 2. Find or create a process for each step
+### 2. Reuse a pipeline, or find or create a process, for each step
+
+**Look for whole pipelines before single processes.** Before reaching for `list_all_processes`,
+search `list_pipelines(search=...)` and `list_featured_pipelines` for a pipeline that already does
+a run of your steps (trimming plus alignment, say, or a whole QC stage). If one fits, use it as a
+**module**: one node in your graph that runs that pipeline's steps as they are, instead of
+rebuilding them process by process.
+
+- Inspect a candidate with `get_pipeline_ports(pipeline_id)`. It returns `{"inputs": [...],
+  "outputs": [...]}`, each port as `{"slot", "name", "process_id", "parameter_id", "file_type",
+  "qualifier"}`. The ports are what your connections attach to, and `file_type` and `qualifier`
+  tell you whether your steps line up with it. `get_pipeline` shows what runs inside.
+- **A module is pinned to the exact revision id you give.** It does not follow newer revisions.
+  Run `list_pipeline_revisions` on the candidate, pick the revision deliberately, and tell the user
+  which name and version you chose.
+- Modules nest at most 5 levels deep, and a pipeline may not contain itself or any revision of
+  itself; `update_pipeline` refuses either.
+- Only fall back to processes for the steps no existing pipeline covers.
+
+For each remaining step:
 
 - Reuse first: `list_all_processes` to find an existing step, then `get_process_details` for its
   inputs and outputs in order; connections refer to these slots.
@@ -110,6 +131,12 @@ These are the arguments to `create_pipeline_config`, and later to `create_pipeli
   (override an input or output name with `"name": "..."`).
 - `input` / `output` pick a process slot by index, name, sname or parameter id. Leave them out when
   the process has only one.
+- **Modules** go in a `modules` list next to `processes`:
+  `{"key": "align", "pipeline_id": 1776}`, with optional `"name"`, `"x"` and `"y"`. A connection
+  names the module by its key, exactly like a process, and picks a module port with `input` or
+  `output` by its 0-based `slot` or its `name` from `get_pipeline_ports`. Use the slot when two
+  ports share a name. The type rule is the same as for processes: file types must match, and a
+  value connects only to a value. A worked example is in `references/graph-format.md`.
 - Every output node's file is saved to the run's published results whether or not it has
   `publish`. `publish` additionally shows it in the run's report view. Values seen on real
   pipelines: `html`, `table`, `table-percent`, `text`, `pdf`, `image`, `rdata`, `apps`,
@@ -121,7 +148,10 @@ These are the arguments to `create_pipeline_config`, and later to `create_pipeli
 - `get_pipeline` lists an input's connections with the one that set its parameter id first, so
   they may not be in the order the editor saved them. That is deliberate; keep that connection
   first when you edit.
-- To extend an existing pipeline, start from its `get_pipeline` graph and edit that.
+- To extend an existing pipeline, start from its `get_pipeline` graph and edit that. Its module
+  nodes are listed under `modules` as `{"node", "pipeline_id"}`, and its `connections` name module
+  ports. Carry both into the `update_pipeline` arguments, writing each module back as
+  `{"key": <node>, "pipeline_id": <id>}`, or the update drops it.
 
 Run `create_pipeline_config`. It reads each process from the server and refuses a connection whose
 ends differ in file type, a slot that is ambiguous or already taken, or a connection in the wrong
@@ -155,5 +185,5 @@ the whole graph, so start from a fresh `get_pipeline`, not from memory.
 
 ## When something will not plan or looks wrong
 
-Read `references/graph-format.md`: node and edge string format, the type rule, and why one pipeline
-input can feed several steps.
+Read `references/graph-format.md`: node and edge string format, the type rule, why one pipeline
+input can feed several steps, and how module nodes and their ports are stored.
