@@ -148,10 +148,10 @@ These are the arguments to `create_pipeline_config`, and later to `create_pipeli
 - `get_pipeline` lists an input's connections with the one that set its parameter id first, so
   they may not be in the order the editor saved them. That is deliberate; keep that connection
   first when you edit.
-- To extend an existing pipeline, start from its `get_pipeline` graph and edit that. Its module
-  nodes are listed under `modules` as `{"node", "pipeline_id"}`, and its `connections` name module
-  ports. Carry both into the `update_pipeline` arguments, writing each module back as
-  `{"key": <node>, "pipeline_id": <id>}`, or the update drops it.
+- To extend an existing pipeline, start from the `graph` field of `get_pipeline`. It holds the
+  `processes`, `modules`, `inputs`, `outputs` and `connections` arguments the save tools take,
+  keyed by node key with every port picked by slot. Edit that copy and pass all five back to
+  `create_pipeline_config` and `update_pipeline`; leaving out `modules` drops the module nodes.
 
 Run `create_pipeline_config`. It reads each process from the server and refuses a connection whose
 ends differ in file type, a slot that is ambiguous or already taken, or a connection in the wrong
