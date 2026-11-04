@@ -66,13 +66,13 @@ not move to a newer revision on its own.
 
 A module's ports come from the module pipeline's own graph:
 
-- **Inputs:** one per distinct inner process input end that a pipeline input (`inPro`) edge
-  reaches, in the order those ends first appear in the module pipeline's edges.
+- **Inputs:** one per distinct pipeline input (`inPro`) edge end, in the order those ends first
+  appear in the module pipeline's edges. A pipeline input that feeds several steps is still one
+  port; it carries the process and parameter of the last step it feeds.
 - **Outputs:** one per pipeline output (`outPro`) edge, in stored order.
 - A port's **name** is the module pipeline's own input or output node name. Its **type** is the
   file type and qualifier of the inner parameter it reaches: the consuming process input for an
-  input port, the producing process output for an output port. Because one inner input node can
-  feed several steps, two input ports can share a name; tell them apart by slot.
+  input port, the producing process output for an output port.
 
 `get_pipeline_ports(pipeline_id)` lists exactly these, with `slot`, `name`, `process_id`,
 `parameter_id`, `file_type` and `qualifier`.
@@ -86,8 +86,8 @@ pi-{innerProcessId}-{order}-{innerParameterId}-{N}     module input port
 po-{innerProcessId}-{order}-{innerParameterId}-{N}     module output port
 ```
 
-`innerProcessId`, `order` and `innerParameterId` identify the inner process parameter behind the
-port (`order` is its 0-based position on that inner process), and `N` is the number in the module
+`innerProcessId` and `innerParameterId` identify the inner process parameter behind the port,
+`order` is the port's 0-based slot among the module's inputs or outputs, and `N` is the number in the module
 node's own key `g-N` in the outer pipeline. The MCP tools write these for you; connections in a spec
 only need the module key and a port slot or name.
 
