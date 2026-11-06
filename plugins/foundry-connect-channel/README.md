@@ -35,7 +35,7 @@ browser. The `foundry-connect` plugin works without it.
 The plugin declares one MCP server, **`foundry-channel`** (shown as "Foundry Connect chat").
 
 - Claude Code starts it as a **Node.js process** on your machine, running the bundled
-  `channel/dist/channel.js`. Node 18 or later is required, and nothing is downloaded or installed
+  `channel/dist/channel.js`. Node 22 or later is required, and nothing is downloaded or installed
   at run time. The readable source is outside the plugin, in
   [`channel/src/`](https://github.com/UMMS-Biocore/foundry-connect-plugin/tree/main/channel/src)
   at the repository root, and CI fails when the committed bundle differs from a fresh build of it.

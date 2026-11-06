@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        node: ['18', '20']
+        node: ['22', '24']
     defaults:
       run:
         working-directory: channel

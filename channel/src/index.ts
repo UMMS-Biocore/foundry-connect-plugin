@@ -2,11 +2,10 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-
 import { loadedAsChannel, parentArgv } from './launch.js';
 import { startLink, type Link } from './link.js';
 import { login } from './login.js';
+import { StdioTransport } from './mcp.js';
 import { CHANNEL_VERSION, createChannelServer } from './server.js';
 import { isUsable, loadToken, storedLoginPath } from './token-store.js';
 
@@ -66,7 +65,7 @@ async function runChannel(): Promise<void> {
     fs.unwatchFile(storedLoginPath());
     process.exit(0);
   };
-  const transport = new StdioServerTransport();
+  const transport = new StdioTransport();
   transport.onclose = shutdown;
   process.stdin.on('end', shutdown);
 
@@ -74,6 +73,12 @@ async function runChannel(): Promise<void> {
     // Not started as a channel: Claude Code drops our messages, so connecting would list a
     // drawer session nobody can reach, and signing in would open a browser for nothing.
     if (!asChannel) return;
+    if (typeof globalThis.WebSocket !== 'function') {
+      channel
+        .pushNotice(`Foundry Connect channel: it needs Node 22 or later, and this is Node ${process.versions.node}, so the channel is idle. Update Node and restart Claude Code.`)
+        .catch(() => {});
+      return;
+    }
     if (!host) {
       channel
         .pushNotice('Foundry Connect channel: no instance host is set, so the channel is idle. Set it in the plugin options (/plugin) and restart Claude Code.')

@@ -102,6 +102,20 @@ test('announce carries v 1 and the credential travels in auth only', async () =>
   assert.ok(!h.url.includes(CRED));
 });
 
+// The bundle swaps the ws package for Node's own WebSocket. Polling alone would still
+// connect, so this checks the upgrade really happens and messages flow over it.
+test('the link upgrades to the WebSocket transport and messages cross it', async () => {
+  const backend = await startBackend();
+  const server = fakeServer();
+  start(backend, server);
+  await waitFor(() => backend.state.announces.length === 1);
+  const socket = backend.state.sockets[0];
+  await waitFor(() => socket.conn.transport.name === 'websocket');
+  socket.emit('message', { v: 1, conversationId: 5, text: 'over websocket' });
+  await waitFor(() => server.seen.pushed.length === 1);
+  assert.equal(server.seen.pushed[0].text, 'over websocket');
+});
+
 test('a reconnect announces again with the same session id', async () => {
   const backend = await startBackend();
   start(backend, fakeServer());
