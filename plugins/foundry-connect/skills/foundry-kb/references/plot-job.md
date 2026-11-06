@@ -71,12 +71,11 @@ import csv, hashlib, io, json, os, shutil, sys, urllib.request
 
 RUN = "5001"                                  # Foundry run id
 FILE = "DE/TRT_vs_CON.DE.csv"                 # report path as listed
-SOURCE = os.environ.get("SRC", "")            # a visible path, or the download link
-KEY = os.environ["KEY"]                       # the job's submission_key
+JOB_NAME = sys.argv[1]                        # the job's submission_key
+SOURCE = sys.argv[2]                          # a visible path, or the download link
 FILTER = "padj < 0.05 top 20 by abs(log2FoldChange)"
 MARK = {"GENEA", "GENEB"}                     # features the cited claims cover
-BASE = os.environ.get("OUTPUTS", "/workspace/outputs")
-OUT = os.path.join(BASE, KEY)
+OUT = os.path.join("/workspace/outputs", JOB_NAME)
 FIGURE_MAX = 384 * 1024
 
 os.makedirs(OUT, exist_ok=True)
@@ -130,10 +129,11 @@ mkdir -p /workspace/kb-scripts
 cat > /workspace/kb-scripts/<submission_key>.py <<'PY'
 <the script>
 PY
-KEY='<submission_key>' SRC='<visible path or download link>' python3 /workspace/kb-scripts/<submission_key>.py
+python3 /workspace/kb-scripts/<submission_key>.py '<submission_key>' '<visible path or download link>'
 ```
 
-Use the same `submission_key` in the command and in the `workspace_run` call. Keep the command
+The script takes the `submission_key` and the source as its two arguments and reads nothing from
+the environment. Use the same `submission_key` in the command and in the `workspace_run` call. Keep the command
 under 32 KiB. A question that needs several files reads them all in one job and writes one
 provenance block per file.
 
