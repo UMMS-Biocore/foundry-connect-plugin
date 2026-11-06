@@ -1,4 +1,4 @@
-// Bundles the channel into one CommonJS file that runs on Node 18 or later with no
+// Bundles the channel into one CommonJS file that runs on Node 22 or later with no
 // install step, because a plugin fetched from git is never built on the user's machine.
 // The source lives outside the plugin folder so the plugin ships only the bundle. The
 // bundle is written into the plugin at plugins/foundry-connect-channel/channel/dist/channel.js,
@@ -11,10 +11,10 @@ const BUNDLE = '../plugins/foundry-connect-channel/channel/dist/channel.js';
 const common = {
   bundle: true,
   platform: 'node',
-  target: 'node18',
+  target: 'node22',
   format: 'cjs',
-  // optional native speedups that ws loads only when present
-  external: ['bufferutil', 'utf-8-validate'],
+  // Node's own WebSocket replaces the ws package, which keeps the bundle small and readable.
+  alias: { ws: './src/ws-shim.ts' },
   legalComments: 'none',
   logLevel: 'warning',
 };

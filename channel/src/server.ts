@@ -1,10 +1,7 @@
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { z } from 'zod';
-
 import { REQUEST_ID_PATTERN, type PageContext, type PermissionBehavior } from './envelope.js';
+import { McpServer } from './mcp.js';
 
-export const CHANNEL_VERSION = '0.6.1';
+export const CHANNEL_VERSION = '0.7.0';
 
 export type PermissionRequest = {
   requestId: string;
@@ -19,7 +16,7 @@ export type ChannelServerOptions = {
 };
 
 export type ChannelServer = {
-  server: Server;
+  server: McpServer;
   pushMessage(conversationId: number, text: string, context?: PageContext): Promise<void>;
   sendVerdict(requestId: string, behavior: PermissionBehavior): Promise<void>;
   pushNotice(text: string): Promise<void>;
@@ -36,20 +33,23 @@ const INSTRUCTIONS = [
   'Show it to the person in the terminal and do not call the reply tool for it.',
 ].join(' ');
 
-const PermissionRequestNotification = z.object({
-  method: z.literal('notifications/claude/channel/permission_request'),
-  params: z.object({
-    request_id: z.string(),
-    tool_name: z.string(),
-    description: z.string(),
-    input_preview: z.string(),
-  }),
-});
+// The permission request Claude Code sends, or null when any field is missing.
+function parsePermissionRequest(params: Record<string, unknown>): PermissionRequest | null {
+  const { request_id, tool_name, description, input_preview } = params;
+  if (typeof request_id !== 'string' || typeof tool_name !== 'string') return null;
+  if (typeof description !== 'string' || typeof input_preview !== 'string') return null;
+  return { requestId: request_id, toolName: tool_name, description, inputPreview: input_preview };
+}
 
-const ReplyArguments = z.object({
-  conversation_id: z.union([z.string(), z.number()]),
-  text: z.string().min(1),
-});
+// The reply tool's arguments, or null unless conversation_id is a string or number and
+// text is a non empty string.
+function parseReplyArguments(args: unknown): { conversationId: string | number; text: string } | null {
+  if (typeof args !== 'object' || args === null) return null;
+  const { conversation_id, text } = args as Record<string, unknown>;
+  if (typeof conversation_id !== 'string' && typeof conversation_id !== 'number') return null;
+  if (typeof text !== 'string' || text.length === 0) return null;
+  return { conversationId: conversation_id, text };
+}
 
 function parseConversationId(raw: string | number): number | null {
   const s = String(raw).trim();
@@ -64,7 +64,7 @@ function contextBlock(context: PageContext): string {
 }
 
 export function createChannelServer(opts: ChannelServerOptions): ChannelServer {
-  const server = new Server(
+  const server = new McpServer(
     { name: 'foundry-channel', version: CHANNEL_VERSION },
     {
       capabilities: {
@@ -75,7 +75,7 @@ export function createChannelServer(opts: ChannelServerOptions): ChannelServer {
     },
   );
 
-  server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  server.setRequestHandler('tools/list', async () => ({
     tools: [
       {
         name: 'reply',
@@ -92,33 +92,29 @@ export function createChannelServer(opts: ChannelServerOptions): ChannelServer {
     ],
   }));
 
-  server.setRequestHandler(CallToolRequestSchema, async (req) => {
-    if (req.params.name !== 'reply') {
-      return { isError: true, content: [{ type: 'text', text: `unknown tool: ${req.params.name}` }] };
+  server.setRequestHandler('tools/call', async (params) => {
+    if (params.name !== 'reply') {
+      return { isError: true, content: [{ type: 'text', text: `unknown tool: ${String(params.name)}` }] };
     }
-    const args = ReplyArguments.safeParse(req.params.arguments ?? {});
-    const conversationId = args.success ? parseConversationId(args.data.conversation_id) : null;
-    if (!args.success || conversationId === null) {
+    const args = parseReplyArguments(params.arguments ?? {});
+    const conversationId = args ? parseConversationId(args.conversationId) : null;
+    if (!args || conversationId === null) {
       return {
         isError: true,
         content: [{ type: 'text', text: 'reply needs conversation_id (a positive whole number from the channel tag) and non empty text' }],
       };
     }
     try {
-      await opts.onReply(conversationId, args.data.text);
+      await opts.onReply(conversationId, args.text);
     } catch (err) {
       return { isError: true, content: [{ type: 'text', text: `not sent: ${err instanceof Error ? err.message : String(err)}` }] };
     }
     return { content: [{ type: 'text', text: 'sent' }] };
   });
 
-  server.setNotificationHandler(PermissionRequestNotification, async ({ params }) => {
-    opts.onPermissionRequest({
-      requestId: params.request_id,
-      toolName: params.tool_name,
-      description: params.description,
-      inputPreview: params.input_preview,
-    });
+  server.setNotificationHandler('notifications/claude/channel/permission_request', (params) => {
+    const request = parsePermissionRequest(params);
+    if (request) opts.onPermissionRequest(request);
   });
 
   return {

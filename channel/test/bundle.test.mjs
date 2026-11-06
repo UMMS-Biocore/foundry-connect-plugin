@@ -41,11 +41,11 @@ test('bundled channel starts and exits when stdin closes', async () => {
 
 // Starts the bundle the way Claude Code does for a channel session: as the child of a
 // process whose command line names this channel.
-function spawnAsChannel() {
+function spawnAsChannel(env = {}) {
   const relay = "require('child_process').spawn(process.execPath,[process.argv[1]],{stdio:'inherit'}).on('exit',(c)=>process.exit(c??1))";
   return spawn(process.execPath, ['-e', relay, '--', bundle, '--channels', 'server:foundry-channel'], {
     stdio: ['pipe', 'pipe', 'pipe'],
-    env: cleanEnv(),
+    env: { ...cleanEnv(), ...env },
   });
 }
 
@@ -85,6 +85,15 @@ test('with no instance host the channel tells the person after initialize', asyn
   assert.ok(notice, 'expected a notice');
   assert.equal(notice.params.meta.kind, 'notice');
   assert.match(notice.params.content, /no instance host/);
+});
+
+// Node without a global WebSocket (older than 22) is simulated by switching it off.
+test('without a global WebSocket the channel says it needs Node 22', async () => {
+  const child = spawnAsChannel({ NODE_OPTIONS: '--no-experimental-websocket' });
+  const notice = await channelNoticeAfterInitialize(child, 10000);
+  assert.ok(notice, 'expected a notice');
+  assert.equal(notice.params.meta.kind, 'notice');
+  assert.match(notice.params.content, /needs Node 22 or later/);
 });
 
 test('a session not started with the channel flag stays silent after initialize', async () => {
