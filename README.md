@@ -144,6 +144,13 @@ and stores its own sign in. [`plugins/foundry-connect-channel/README.md`](plugin
 covers how to install it and what it sends. The plugin ships only the built bundle. Its readable
 source, tests and lockfile are in [`channel/`](channel/) at the repository root.
 
+[`plugins/foundry-connect-directory/`](plugins/foundry-connect-directory/) is the copy submitted to
+the Claude plugin directory. The directory accepts no MCP server whose URL depends on the user's
+hostname, so this copy has the same skills, commands and icon but declares no server, and its
+README tells the user to add their instance as a connector. It is not in this marketplace. Never
+edit it by hand: change `plugins/foundry-connect` and run `node scripts/sync-directory.mjs`. The
+`directory` workflow fails when the copy is stale.
+
 ## Safety
 
 Read and inspect actions (listing runs, downloading or loading files, fetching reports) run freely.
