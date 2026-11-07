@@ -3,7 +3,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 
-import { loadToken, saveToken, type StoredToken } from './token-store.js';
+import { loadRegisteredClient, saveRegisteredClient } from './client-store.js';
 
 export type LoginOptions = {
   // Opens the authorize page. Defaults to the system browser.
@@ -13,9 +13,20 @@ export type LoginOptions = {
   timeoutMs?: number;
 };
 
-const DEFAULT_LIFETIME_SECONDS = 90 * 24 * 60 * 60;
+// What a sign in returns. The credential stays in the caller's memory: it is never written
+// to disk, printed, logged or sent to Claude.
+export type SignIn = {
+  instanceHost: string;
+  accessToken: string;
+};
 
-const LOOPBACK_HOSTS =new Set(['127.0.0.1', 'localhost', '[::1]']);
+const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '[::1]']);
+
+// An unset plugin option can reach us as the literal placeholder; treat it as unset.
+export function configuredOption(raw: string | undefined): string {
+  const v = (raw ?? '').trim();
+  return v && !v.includes('${') ? v : '';
+}
 
 // A bare host name means https://<host>. A full http URL is accepted only for a loopback
 // host, which is how a local development stack is reached.
@@ -107,14 +118,14 @@ async function register(base: string, port: number): Promise<string> {
   return body.client_id;
 }
 
-export async function login(instanceHost: string, opts: LoginOptions = {}): Promise<StoredToken> {
+export async function login(instanceHost: string, opts: LoginOptions = {}): Promise<SignIn> {
   const base = instanceBaseUrl(instanceHost);
   const notify = opts.notify ?? ((m: string) => process.stderr.write(`${m}\n`));
   const openUrl = opts.openUrl ?? openInBrowser;
   const timeoutMs = opts.timeoutMs ?? 10 * 60_000;
 
   // Reuse the registered client while its fixed port is free; register again only if not.
-  const previous = loadToken();
+  const previous = loadRegisteredClient();
   let clientId: string | null = null;
   let callback: Callback;
   if (previous && previous.instanceHost === instanceHost) {
@@ -129,7 +140,10 @@ export async function login(instanceHost: string, opts: LoginOptions = {}): Prom
   }
 
   try {
-    if (!clientId) clientId = await register(base, callback.port);
+    if (!clientId) {
+      clientId = await register(base, callback.port);
+      saveRegisteredClient({ instanceHost, clientId, redirectPort: callback.port });
+    }
     const redirectUri = `http://127.0.0.1:${callback.port}/callback`;
     const verifier = randomBytes(32).toString('base64url');
     const challenge = createHash('sha256').update(verifier).digest('base64url');
@@ -168,23 +182,12 @@ export async function login(instanceHost: string, opts: LoginOptions = {}): Prom
       }).toString(),
     });
     if (!res.ok) throw new Error(`sign in exchange failed with HTTP ${res.status}`);
-    const body = (await res.json()) as { access_token?: unknown; expires_in?: unknown };
-    if (typeof body.access_token !== 'string') {
+    const body = (await res.json()) as { access_token?: unknown };
+    if (typeof body.access_token !== 'string' || !body.access_token) {
       throw new Error('sign in exchange returned an unexpected response');
     }
-    // The server may omit expires_in; assume its 90 day lifetime. The backend still
-    // re-checks the credential, so a shorter real life only means an earlier auth_expired.
-    const lifetimeSeconds = typeof body.expires_in === 'number' && body.expires_in > 0 ? body.expires_in : DEFAULT_LIFETIME_SECONDS;
-    const stored: StoredToken = {
-      instanceHost,
-      clientId,
-      redirectPort: callback.port,
-      accessToken: body.access_token,
-      expiresAt: new Date(Date.now() + lifetimeSeconds * 1000).toISOString(),
-    };
-    saveToken(stored);
     notify('Foundry Connect: signed in. The channel will connect now.');
-    return stored;
+    return { instanceHost, accessToken: body.access_token };
   } finally {
     callback.close();
   }

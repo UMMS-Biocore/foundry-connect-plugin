@@ -98,31 +98,71 @@ beforeEach(() => {
   process.env.XDG_CONFIG_HOME = configDir;
 });
 
-test('stored login path follows XDG_CONFIG_HOME', () => {
-  assert.equal(lib.storedLoginPath(), path.join(configDir, 'foundry-connect', 'channel.json'));
+// Every file under the config directory, with its contents.
+function filesOnDisk() {
+  const out = {};
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else out[path.relative(configDir, p)] = fs.readFileSync(p, 'utf8');
+    }
+  };
+  walk(configDir);
+  return out;
+}
+
+test('registered client path follows XDG_CONFIG_HOME', () => {
+  assert.equal(lib.registeredClientPath(), path.join(configDir, 'foundry-connect', 'channel-client.json'));
 });
 
-test('login registers, exchanges with PKCE and saves a 0600 file in a 0700 directory', async () => {
+test('login registers, exchanges with PKCE and returns the credential without writing it anywhere', async () => {
   const stub = await startStubOAuth();
   const cap = captureOutput();
-  let saved;
+  let result;
   try {
-    saved = await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
+    result = await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
   } finally {
     cap.restore();
     await stub.close();
   }
   assert.equal(stub.state.registrations.length, 1);
-  assert.equal(saved.clientId, 'client-1');
-  assert.equal(saved.instanceHost, stub.host);
-  assert.ok(Date.parse(saved.expiresAt) > Date.now());
-  const file = lib.storedLoginPath();
-  assert.equal(fs.statSync(file).mode & 0o777, 0o600);
-  assert.equal(fs.statSync(path.dirname(file)).mode & 0o777, 0o700);
-  const loaded = lib.loadToken();
-  assert.deepEqual(Object.keys(loaded).sort(), ['accessToken', 'clientId', 'expiresAt', 'instanceHost', 'redirectPort']);
-  assert.equal(loaded.accessToken, ISSUED);
+  assert.deepEqual(Object.keys(result).sort(), ['accessToken', 'instanceHost']);
+  assert.equal(result.instanceHost, stub.host);
+  assert.equal(result.accessToken, ISSUED);
   assert.ok(!cap.text().includes(ISSUED), 'the issued value was printed');
+  const files = filesOnDisk();
+  assert.deepEqual(Object.keys(files), [path.join('foundry-connect', 'channel-client.json')]);
+  for (const body of Object.values(files)) assert.ok(!body.includes(ISSUED), 'the issued value reached the disk');
+  const client = lib.loadRegisteredClient();
+  assert.deepEqual(Object.keys(client).sort(), ['clientId', 'instanceHost', 'redirectPort']);
+  assert.equal(client.clientId, 'client-1');
+});
+
+test('removeLegacySignInFile deletes the 0.7.0 channel.json and leaves the client record', async () => {
+  const dir = path.join(configDir, 'foundry-connect');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'channel.json'), '{}\n');
+  lib.saveRegisteredClient({ instanceHost: 'foundry.example.org', clientId: 'c', redirectPort: 4000 });
+  lib.removeLegacySignInFile();
+  assert.deepEqual(fs.readdirSync(dir), ['channel-client.json']);
+  lib.removeLegacySignInFile();
+});
+
+test('a malformed client record is ignored', () => {
+  const dir = path.join(configDir, 'foundry-connect');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(lib.registeredClientPath(), JSON.stringify({ instanceHost: 'h', clientId: 'c', redirectPort: 0 }));
+  assert.equal(lib.loadRegisteredClient(), null);
+  fs.writeFileSync(lib.registeredClientPath(), 'not json');
+  assert.equal(lib.loadRegisteredClient(), null);
+});
+
+test('configuredOption treats an unfilled placeholder as unset', () => {
+  assert.equal(lib.configuredOption('${user_config.access_token}'), '');
+  assert.equal(lib.configuredOption('  '), '');
+  assert.equal(lib.configuredOption(undefined), '');
+  assert.equal(lib.configuredOption(' foundry.example.org '), 'foundry.example.org');
 });
 
 test('notify messages never carry the issued value', async () => {
@@ -140,11 +180,12 @@ test('notify messages never carry the issued value', async () => {
 test('a second login reuses the client and port when the port is free', async () => {
   const stub = await startStubOAuth();
   try {
-    const first = await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
-    const second = await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
+    await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
+    const first = lib.loadRegisteredClient();
+    await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
+    const second = lib.loadRegisteredClient();
     assert.equal(stub.state.registrations.length, 1);
-    assert.equal(second.clientId, first.clientId);
-    assert.equal(second.redirectPort, first.redirectPort);
+    assert.deepEqual(second, first);
   } finally {
     await stub.close();
   }
@@ -154,9 +195,11 @@ test('a taken port leads to exactly one re-registration on a new port', async ()
   const stub = await startStubOAuth();
   const blocker = http.createServer();
   try {
-    const first = await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
+    await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
+    const first = lib.loadRegisteredClient();
     await new Promise((r) => blocker.listen(first.redirectPort, '127.0.0.1', r));
-    const second = await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
+    await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
+    const second = lib.loadRegisteredClient();
     assert.equal(stub.state.registrations.length, 2);
     assert.notEqual(second.redirectPort, first.redirectPort);
     assert.notEqual(second.clientId, first.clientId);
@@ -166,7 +209,7 @@ test('a taken port leads to exactly one re-registration on a new port', async ()
   }
 });
 
-test('a state mismatch is refused and nothing is saved', async () => {
+test('a state mismatch is refused and no exchange happens', async () => {
   const stub = await startStubOAuth({ badState: true });
   try {
     await assert.rejects(lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} }), /state/);
@@ -174,20 +217,17 @@ test('a state mismatch is refused and nothing is saved', async () => {
     await stub.close();
   }
   assert.equal(stub.state.exchanges.length, 0);
-  assert.equal(lib.loadToken(), null);
 });
 
-test('a response without expires_in is kept, with the 90 day lifetime assumed', async () => {
+test('a response without expires_in still signs in', async () => {
   const stub = await startStubOAuth({ omitExpiry: true });
-  let saved;
+  let result;
   try {
-    saved = await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
+    result = await lib.login(stub.host, { openUrl: fakeBrowser, notify: () => {} });
   } finally {
     await stub.close();
   }
-  const days = (Date.parse(saved.expiresAt) - Date.now()) / 86_400_000;
-  assert.ok(days > 89 && days <= 90, `expected about 90 days, got ${days}`);
-  assert.equal(lib.loadToken().accessToken, ISSUED);
+  assert.equal(result.accessToken, ISSUED);
 });
 
 test('instance base URL: https for a host name, http only for loopback', () => {

@@ -8,10 +8,15 @@ const { InMemoryTransport } = require('@modelcontextprotocol/sdk/inMemory.js');
 const { Client } = require('@modelcontextprotocol/sdk/client/index.js');
 
 function setup() {
-  const calls = { replies: [], requests: [] };
+  const calls = { replies: [], requests: [], signIns: 0 };
   const channel = lib.createChannelServer({
     onReply: (conversationId, text) => calls.replies.push({ conversationId, text }),
     onPermissionRequest: (r) => calls.requests.push(r),
+    onSignIn: () => {
+      calls.signIns++;
+      if (calls.signIns > 1) throw new Error('already signing in');
+      return 'Opening the browser';
+    },
   });
   const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
   return { channel, calls, clientSide, serverSide };
@@ -56,10 +61,21 @@ test('clientVersion reports the connected Claude Code version', async () => {
 test('reply tool forwards conversation id and text to onReply', async () => {
   const { client, calls } = await connectClient();
   const tools = await client.listTools();
-  assert.deepEqual(tools.tools.map((t) => t.name), ['reply']);
+  assert.deepEqual(tools.tools.map((t) => t.name), ['reply', 'sign_in']);
   const res = await client.callTool({ name: 'reply', arguments: { conversation_id: '42', text: 'done' } });
   assert.notEqual(res.isError, true);
   assert.deepEqual(calls.replies, [{ conversationId: 42, text: 'done' }]);
+});
+
+test('sign_in tool returns the status line, and a refusal as a tool error', async () => {
+  const { client, calls } = await connectClient();
+  const first = await client.callTool({ name: 'sign_in', arguments: {} });
+  assert.notEqual(first.isError, true);
+  assert.equal(first.content[0].text, 'Opening the browser');
+  const second = await client.callTool({ name: 'sign_in', arguments: {} });
+  assert.equal(second.isError, true);
+  assert.match(second.content[0].text, /already signing in/);
+  assert.equal(calls.signIns, 2);
 });
 
 test('reply tool refuses a conversation id that is not a positive integer', async () => {

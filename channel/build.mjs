@@ -14,7 +14,8 @@ const common = {
   target: 'node22',
   format: 'cjs',
   // Node's own WebSocket replaces the ws package, which keeps the bundle small and readable.
-  alias: { ws: './src/ws-shim.ts' },
+  // A no-op logger replaces debug, which would otherwise scan the whole environment.
+  alias: { ws: './src/ws-shim.ts', debug: './src/debug-shim.ts' },
   legalComments: 'none',
   logLevel: 'warning',
 };

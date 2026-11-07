@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import http from 'node:http';
+import { Server as IOServer } from 'socket.io';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -101,11 +103,83 @@ test('a session not started with the channel flag stays silent after initialize'
   assert.equal(await channelNoticeAfterInitialize(child, 1500), undefined);
 });
 
-test('login subcommand without a host exits 1 with one status line', async () => {
-  const child = spawn(process.execPath, [bundle, 'login', '${user_config.instance_host}'], { env: cleanEnv() });
-  let out = '';
-  child.stdout.on('data', (d) => (out += d));
-  const code = await new Promise((r) => child.on('exit', r));
-  assert.equal(code, 1);
-  assert.match(out, /no instance host is set/);
+// A loopback address nothing listens on.
+async function closedLoopbackHost() {
+  const net = await import('node:net');
+  const s = net.createServer();
+  await new Promise((r) => s.listen(0, '127.0.0.1', r));
+  const { port } = s.address();
+  await new Promise((r) => s.close(r));
+  return `http://127.0.0.1:${port}`;
+}
+
+test('the bundle stays under the plugin directory 256 KiB file limit', () => {
+  assert.ok(fs.statSync(bundle).size < 256 * 1024, `bundle is ${fs.statSync(bundle).size} bytes`);
+});
+
+test('the 0.7.0 sign in file is removed even in a session not started as a channel', async () => {
+  const env = cleanEnv();
+  const legacy = path.join(env.XDG_CONFIG_HOME, 'foundry-connect', 'channel.json');
+  fs.mkdirSync(path.dirname(legacy), { recursive: true });
+  fs.writeFileSync(legacy, '{}\n');
+  const child = spawn(process.execPath, [bundle], { stdio: ['pipe', 'pipe', 'pipe'], env });
+  assert.equal(await channelNoticeAfterInitialize(child, 500), undefined);
+  assert.equal(fs.existsSync(legacy), false);
+});
+
+test('a channel start with no configured credential signs in, and removes the 0.7.0 file', async () => {
+  const env = cleanEnv();
+  const legacy = path.join(env.XDG_CONFIG_HOME, 'foundry-connect', 'channel.json');
+  fs.mkdirSync(path.dirname(legacy), { recursive: true });
+  fs.writeFileSync(legacy, '{}\n');
+  const child = spawnAsChannel({ ...env, FOUNDRY_INSTANCE_HOST: await closedLoopbackHost() });
+  const notice = await channelNoticeAfterInitialize(child, 10000);
+  assert.ok(notice, 'expected a notice');
+  // registration against the closed port fails before any browser opens
+  assert.match(notice.params.content, /sign in did not finish/);
+  assert.equal(fs.existsSync(legacy), false);
+});
+
+test('a configured credential goes to the configured instance in the handshake, without a sign in, and is never printed', async () => {
+  const configured = 'via_mcp_configured_value_that_must_never_be_printed';
+  const seenHttp = [];
+  const httpServer = http.createServer((req, res) => {
+    // any plain HTTP request (such as an OAuth registration) would mean a sign in started
+    seenHttp.push(req.url);
+    res.writeHead(404);
+    res.end();
+  });
+  const io = new IOServer(httpServer);
+  const handshakes = [];
+  io.of('/claude-channel').use((socket, next) => {
+    handshakes.push(socket.handshake.auth?.token === configured);
+    next(new Error('auth_expired'));
+  });
+  await new Promise((r) => httpServer.listen(0, '127.0.0.1', r));
+  try {
+    const child = spawnAsChannel({
+      FOUNDRY_INSTANCE_HOST: `http://127.0.0.1:${httpServer.address().port}`,
+      FOUNDRY_CHANNEL_ACCESS_TOKEN: configured,
+    });
+    let printed = '';
+    child.stdout.on('data', (d) => (printed += d));
+    child.stderr.on('data', (d) => (printed += d));
+    // the refused handshake stops the link with one notice
+    const notice = await channelNoticeAfterInitialize(child, 10000);
+    assert.match(notice?.params?.content ?? '', /expired or was revoked/);
+    assert.deepEqual(handshakes, [true]);
+    assert.ok(!seenHttp.some((u) => u.startsWith('/api/oauth')), 'a browser sign in was started');
+    assert.ok(!printed.includes(configured), 'the configured value was printed');
+  } finally {
+    await new Promise((r) => io.close(() => r()));
+  }
+});
+
+test('an unfilled credential option counts as unset', async () => {
+  const child = spawnAsChannel({
+    FOUNDRY_INSTANCE_HOST: await closedLoopbackHost(),
+    FOUNDRY_CHANNEL_ACCESS_TOKEN: '${user_config.access_token}',
+  });
+  const notice = await channelNoticeAfterInitialize(child, 10000);
+  assert.match(notice?.params?.content ?? '', /sign in did not finish/);
 });

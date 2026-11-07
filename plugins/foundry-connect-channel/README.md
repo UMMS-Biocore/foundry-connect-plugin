@@ -22,13 +22,18 @@ browser. The `foundry-connect` plugin works without it.
    While the channel is not on the approved list, use
    `--dangerously-load-development-channels plugin:foundry-connect-channel@foundry-connect` instead.
 
-3. On its first start the channel opens your browser once to sign in. The session then appears in
-   the Claude Code list of the Foundry Connect chat drawer.
+3. Each time the channel starts it opens your browser to sign in (one Approve click when you are
+   already signed in to Foundry Connect). The session then appears in the Claude Code list of the
+   Foundry Connect chat drawer.
+
+On a machine with no browser, create a personal access token in Foundry Connect and give it to the
+optional **`access_token`** plugin option (`/plugin`). Claude Code stores it as a sensitive value,
+and the channel then connects with it and skips the browser sign in.
 
 ## Commands
 
-- **`/foundry-channel-login`**: signs the chat channel in again, for example after its sign in
-  expired.
+- **`/foundry-channel-login`**: signs the running chat channel in again in the browser, for
+  example after its sign in expired or was revoked.
 
 ## What this plugin runs and sends
 
@@ -50,12 +55,24 @@ The plugin declares one MCP server, **`foundry-channel`** (shown as "Foundry Con
   folder Claude Code was started in, the start time, and the channel version. After that it
   carries messages you send from the drawer into this session, Claude's replies back to the
   drawer, and tool permission prompts you choose to answer from the drawer.
-- Its sign in comes from its own browser sign in, never from another tool's saved credentials.
-  The result is **stored** in `~/.config/foundry-connect/channel.json` (or under
-  `$XDG_CONFIG_HOME`) with owner only permissions. It is never printed, logged or sent to Claude,
-  and it works only against the instance it was issued for.
-- **`/foundry-channel-login`** runs `node channel/dist/channel.js login` to sign in again. It prints
-  status lines only. The running channel picks up the new sign in within a few seconds.
+- Its credential comes from one of two places only: its own browser sign in (OAuth with PKCE, a
+  callback on `127.0.0.1`), or the `access_token` plugin option if you chose to fill it in. It
+  never reads another tool's saved credentials, and it **never writes a credential to disk**: a
+  browser sign in is held in the channel's memory and is gone when the session ends. It is never
+  printed, logged or sent to Claude, and it is sent only to the instance you configured.
+- The one file it keeps is `~/.config/foundry-connect/channel-client.json` (or under
+  `$XDG_CONFIG_HOME`): the public OAuth client id it registered and the loopback port of its
+  callback, so a new sign in reuses them. It holds no credential. On start the channel also
+  deletes, unread, the `channel.json` sign in file that versions up to 0.7.0 kept. Deleting the
+  file does not revoke that older sign in on the server: it stays valid until it expires or you
+  revoke it in Foundry Connect.
+- **`/foundry-channel-login`** calls the channel's `sign_in` tool, which opens the browser sign in
+  again in the running channel. It returns one status line; the outcome arrives as a channel
+  notice.
+- The environment variables it reads are `FOUNDRY_INSTANCE_HOST` and
+  `FOUNDRY_CHANNEL_ACCESS_TOKEN`, which Claude Code sets from the plugin options (the second is
+  empty unless you filled in `access_token`), plus `XDG_CONFIG_HOME` and `HOME` to find its
+  config folder. It reads no other variable.
 
 If no hostname is configured, the channel stays idle and connects to nothing. Uninstall the plugin,
 or disable it from `/mcp`, if you do not use the chat drawer.
