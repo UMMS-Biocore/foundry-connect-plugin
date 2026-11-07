@@ -1,6 +1,6 @@
 ---
 name: foundry-pipelines
-description: Use when a user wants to work with Foundry Connect: explore or inspect runs, access/download result files, analyze data in chat, share results back, author or duplicate pipelines/processes, execute (launch) a run, or launch an app. Routes to task-specific references and enforces confirm-before-write safety.
+description: Use when a user wants to work with Foundry Connect to explore or inspect runs, access/download result files, analyze data in chat, share results back, author or duplicate pipelines/processes, execute (launch) a run, or launch an app. Routes to task-specific references and enforces confirm-before-write safety.
 ---
 
 # Foundry Connect pipelines

@@ -1,6 +1,6 @@
 ---
 name: foundry-pipeline-dev
-description: Use when a user wants to build, extend, copy or rewire a Foundry Connect pipeline: wiring processes into a multi-step pipeline, adding a step to an existing pipeline, making their own copy of a pipeline to change it, creating a new process for a pipeline step, or test-running a pipeline they are developing. Use it even when they say "workflow" or "add a step" instead of "pipeline", or ask to "build a pipeline from these scripts". Covers designing the graph, reusing existing pipelines as modules, creating processes, building and type-checking the graph from a JSON spec, creating the pipeline, and a first test run, with confirm-before-write safety.
+description: Use when a user wants to build, extend, copy or rewire a Foundry Connect pipeline, such as wiring processes into a multi-step pipeline, adding a step to an existing pipeline, making their own copy of a pipeline to change it, creating a new process for a pipeline step, or test-running a pipeline they are developing. Use it even when they say "workflow" or "add a step" instead of "pipeline", or ask to "build a pipeline from these scripts". Covers designing the graph, reusing existing pipelines as modules, creating processes, building and type-checking the graph from a JSON spec, creating the pipeline, and a first test run, with confirm-before-write safety.
 ---
 
 # Foundry Connect pipeline development
