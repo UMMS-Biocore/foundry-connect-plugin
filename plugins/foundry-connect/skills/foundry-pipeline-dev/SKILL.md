@@ -11,7 +11,7 @@ page) and pipeline **output** nodes (published results and reports), joined by t
 that runs.
 
 Processes are authored through the Foundry Connect MCP tools (see the `foundry-pipelines` skill,
-`references/author.md`). The graph is built with the Foundry Connect MCP pipeline tools, on every
+`../foundry-pipelines/references/author.md`). The graph is built with the Foundry Connect MCP pipeline tools, on every
 host. They sign in through the connector in the browser, so nothing is installed on the user's
 machine.
 
@@ -166,7 +166,7 @@ simple columns.
 
 ### 5. Test-run it
 
-Start a run from the new pipeline with the `foundry-pipelines` skill's `references/execute.md`
+Start a run from the new pipeline with the `foundry-pipelines` skill's `../foundry-pipelines/references/execute.md`
 (each write confirmed). Two things the run tools cannot set today, so tell the user to set them on
 the run page under advanced settings before launching: container use (Singularity or Docker on or
 off) and the executor settings (queue, memory, CPUs, time). A new run may start with the container
