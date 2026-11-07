@@ -32,7 +32,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 // node_modules/xmlhttprequest-ssl/lib/XMLHttpRequest.js
 var require_XMLHttpRequest = __commonJS({
   "node_modules/xmlhttprequest-ssl/lib/XMLHttpRequest.js"(exports2, module2) {
-    var fs4 = require("fs");
+    var fs3 = require("fs");
     var Url = require("url");
     var spawn2 = require("child_process").spawn;
     module2.exports = XMLHttpRequest3;
@@ -190,7 +190,7 @@ var require_XMLHttpRequest = __commonJS({
             throw new Error("XMLHttpRequest: Only GET method is supported");
           }
           if (settings.async) {
-            fs4.readFile(unescape(url2.pathname), function(error, data2) {
+            fs3.readFile(unescape(url2.pathname), function(error, data2) {
               if (error) {
                 self.handleError(error, error.errno || -1);
               } else {
@@ -202,7 +202,7 @@ var require_XMLHttpRequest = __commonJS({
             });
           } else {
             try {
-              this.response = fs4.readFileSync(unescape(url2.pathname));
+              this.response = fs3.readFileSync(unescape(url2.pathname));
               this.responseText = this.response.toString("utf8");
               this.status = 200;
               setState(self.DONE);
@@ -328,15 +328,15 @@ var require_XMLHttpRequest = __commonJS({
         } else {
           var contentFile = ".node-xmlhttprequest-content-" + process.pid;
           var syncFile = ".node-xmlhttprequest-sync-" + process.pid;
-          fs4.writeFileSync(syncFile, "", "utf8");
+          fs3.writeFileSync(syncFile, "", "utf8");
           var execString = "var http = require('http'), https = require('https'), fs = require('fs');var doRequest = http" + (ssl ? "s" : "") + ".request;var options = " + JSON.stringify(options) + ";var responseText = '';var responseData = Buffer.alloc(0);var req = doRequest(options, function(response) {response.on('data', function(chunk) {  var data = Buffer.from(chunk);  responseText += data.toString('utf8');  responseData = Buffer.concat([responseData, data]);});response.on('end', function() {fs.writeFileSync('" + contentFile + "', JSON.stringify({err: null, data: {statusCode: response.statusCode, headers: response.headers, text: responseText, data: responseData.toString('base64')}}), 'utf8');fs.unlinkSync('" + syncFile + "');});response.on('error', function(error) {fs.writeFileSync('" + contentFile + "', 'NODE-XMLHTTPREQUEST-ERROR:' + JSON.stringify(error), 'utf8');fs.unlinkSync('" + syncFile + "');});}).on('error', function(error) {fs.writeFileSync('" + contentFile + "', 'NODE-XMLHTTPREQUEST-ERROR:' + JSON.stringify(error), 'utf8');fs.unlinkSync('" + syncFile + "');});" + (data ? "req.write('" + JSON.stringify(data).slice(1, -1).replace(/'/g, "\\'") + "');" : "") + "req.end();";
           var syncProc = spawn2(process.argv[0], ["-e", execString]);
           var statusText;
-          while (fs4.existsSync(syncFile)) {
+          while (fs3.existsSync(syncFile)) {
           }
-          self.responseText = fs4.readFileSync(contentFile, "utf8");
+          self.responseText = fs3.readFileSync(contentFile, "utf8");
           syncProc.stdin.end();
-          fs4.unlinkSync(contentFile);
+          fs3.unlinkSync(contentFile);
           if (self.responseText.match(/^NODE-XMLHTTPREQUEST-ERROR:/)) {
             var errorObj = JSON.parse(self.responseText.replace(/^NODE-XMLHTTPREQUEST-ERROR:/, ""));
             self.handleError(errorObj, 503);
@@ -509,1180 +509,54 @@ var require_cjs = __commonJS({
   }
 });
 
-// node_modules/ms/index.js
-var require_ms = __commonJS({
-  "node_modules/ms/index.js"(exports2, module2) {
-    var s = 1e3;
-    var m = s * 60;
-    var h = m * 60;
-    var d = h * 24;
-    var w = d * 7;
-    var y = d * 365.25;
-    module2.exports = function(val, options) {
-      options = options || {};
-      var type = typeof val;
-      if (type === "string" && val.length > 0) {
-        return parse3(val);
-      } else if (type === "number" && isFinite(val)) {
-        return options.long ? fmtLong(val) : fmtShort(val);
-      }
-      throw new Error(
-        "val is not a non-empty string or a valid number. val=" + JSON.stringify(val)
-      );
-    };
-    function parse3(str) {
-      str = String(str);
-      if (str.length > 100) {
-        return;
-      }
-      var match = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
-        str
-      );
-      if (!match) {
-        return;
-      }
-      var n = parseFloat(match[1]);
-      var type = (match[2] || "ms").toLowerCase();
-      switch (type) {
-        case "years":
-        case "year":
-        case "yrs":
-        case "yr":
-        case "y":
-          return n * y;
-        case "weeks":
-        case "week":
-        case "w":
-          return n * w;
-        case "days":
-        case "day":
-        case "d":
-          return n * d;
-        case "hours":
-        case "hour":
-        case "hrs":
-        case "hr":
-        case "h":
-          return n * h;
-        case "minutes":
-        case "minute":
-        case "mins":
-        case "min":
-        case "m":
-          return n * m;
-        case "seconds":
-        case "second":
-        case "secs":
-        case "sec":
-        case "s":
-          return n * s;
-        case "milliseconds":
-        case "millisecond":
-        case "msecs":
-        case "msec":
-        case "ms":
-          return n;
-        default:
-          return void 0;
-      }
-    }
-    function fmtShort(ms) {
-      var msAbs = Math.abs(ms);
-      if (msAbs >= d) {
-        return Math.round(ms / d) + "d";
-      }
-      if (msAbs >= h) {
-        return Math.round(ms / h) + "h";
-      }
-      if (msAbs >= m) {
-        return Math.round(ms / m) + "m";
-      }
-      if (msAbs >= s) {
-        return Math.round(ms / s) + "s";
-      }
-      return ms + "ms";
-    }
-    function fmtLong(ms) {
-      var msAbs = Math.abs(ms);
-      if (msAbs >= d) {
-        return plural(ms, msAbs, d, "day");
-      }
-      if (msAbs >= h) {
-        return plural(ms, msAbs, h, "hour");
-      }
-      if (msAbs >= m) {
-        return plural(ms, msAbs, m, "minute");
-      }
-      if (msAbs >= s) {
-        return plural(ms, msAbs, s, "second");
-      }
-      return ms + " ms";
-    }
-    function plural(ms, msAbs, n, name) {
-      var isPlural = msAbs >= n * 1.5;
-      return Math.round(ms / n) + " " + name + (isPlural ? "s" : "");
-    }
-  }
-});
-
-// node_modules/debug/src/common.js
-var require_common = __commonJS({
-  "node_modules/debug/src/common.js"(exports2, module2) {
-    function setup(env) {
-      createDebug.debug = createDebug;
-      createDebug.default = createDebug;
-      createDebug.coerce = coerce;
-      createDebug.disable = disable;
-      createDebug.enable = enable;
-      createDebug.enabled = enabled;
-      createDebug.humanize = require_ms();
-      createDebug.destroy = destroy;
-      Object.keys(env).forEach((key) => {
-        createDebug[key] = env[key];
-      });
-      createDebug.names = [];
-      createDebug.skips = [];
-      createDebug.formatters = {};
-      function selectColor(namespace) {
-        let hash = 0;
-        for (let i = 0; i < namespace.length; i++) {
-          hash = (hash << 5) - hash + namespace.charCodeAt(i);
-          hash |= 0;
-        }
-        return createDebug.colors[Math.abs(hash) % createDebug.colors.length];
-      }
-      createDebug.selectColor = selectColor;
-      function createDebug(namespace) {
-        let prevTime;
-        let enableOverride = null;
-        let namespacesCache;
-        let enabledCache;
-        function debug12(...args) {
-          if (!debug12.enabled) {
-            return;
-          }
-          const self = debug12;
-          const curr = Number(/* @__PURE__ */ new Date());
-          const ms = curr - (prevTime || curr);
-          self.diff = ms;
-          self.prev = prevTime;
-          self.curr = curr;
-          prevTime = curr;
-          args[0] = createDebug.coerce(args[0]);
-          if (typeof args[0] !== "string") {
-            args.unshift("%O");
-          }
-          let index = 0;
-          args[0] = args[0].replace(/%([a-zA-Z%])/g, (match, format) => {
-            if (match === "%%") {
-              return "%";
-            }
-            index++;
-            const formatter = createDebug.formatters[format];
-            if (typeof formatter === "function") {
-              const val = args[index];
-              match = formatter.call(self, val);
-              args.splice(index, 1);
-              index--;
-            }
-            return match;
-          });
-          createDebug.formatArgs.call(self, args);
-          const logFn = self.log || createDebug.log;
-          logFn.apply(self, args);
-        }
-        debug12.namespace = namespace;
-        debug12.useColors = createDebug.useColors();
-        debug12.color = createDebug.selectColor(namespace);
-        debug12.extend = extend;
-        debug12.destroy = createDebug.destroy;
-        Object.defineProperty(debug12, "enabled", {
-          enumerable: true,
-          configurable: false,
-          get: () => {
-            if (enableOverride !== null) {
-              return enableOverride;
-            }
-            if (namespacesCache !== createDebug.namespaces) {
-              namespacesCache = createDebug.namespaces;
-              enabledCache = createDebug.enabled(namespace);
-            }
-            return enabledCache;
-          },
-          set: (v) => {
-            enableOverride = v;
-          }
-        });
-        if (typeof createDebug.init === "function") {
-          createDebug.init(debug12);
-        }
-        return debug12;
-      }
-      function extend(namespace, delimiter) {
-        const newDebug = createDebug(this.namespace + (typeof delimiter === "undefined" ? ":" : delimiter) + namespace);
-        newDebug.log = this.log;
-        return newDebug;
-      }
-      function enable(namespaces) {
-        createDebug.save(namespaces);
-        createDebug.namespaces = namespaces;
-        createDebug.names = [];
-        createDebug.skips = [];
-        const split = (typeof namespaces === "string" ? namespaces : "").trim().replace(/\s+/g, ",").split(",").filter(Boolean);
-        for (const ns of split) {
-          if (ns[0] === "-") {
-            createDebug.skips.push(ns.slice(1));
-          } else {
-            createDebug.names.push(ns);
-          }
-        }
-      }
-      function matchesTemplate(search, template) {
-        let searchIndex = 0;
-        let templateIndex = 0;
-        let starIndex = -1;
-        let matchIndex = 0;
-        while (searchIndex < search.length) {
-          if (templateIndex < template.length && (template[templateIndex] === search[searchIndex] || template[templateIndex] === "*")) {
-            if (template[templateIndex] === "*") {
-              starIndex = templateIndex;
-              matchIndex = searchIndex;
-              templateIndex++;
-            } else {
-              searchIndex++;
-              templateIndex++;
-            }
-          } else if (starIndex !== -1) {
-            templateIndex = starIndex + 1;
-            matchIndex++;
-            searchIndex = matchIndex;
-          } else {
-            return false;
-          }
-        }
-        while (templateIndex < template.length && template[templateIndex] === "*") {
-          templateIndex++;
-        }
-        return templateIndex === template.length;
-      }
-      function disable() {
-        const namespaces = [
-          ...createDebug.names,
-          ...createDebug.skips.map((namespace) => "-" + namespace)
-        ].join(",");
-        createDebug.enable("");
-        return namespaces;
-      }
-      function enabled(name) {
-        for (const skip of createDebug.skips) {
-          if (matchesTemplate(name, skip)) {
-            return false;
-          }
-        }
-        for (const ns of createDebug.names) {
-          if (matchesTemplate(name, ns)) {
-            return true;
-          }
-        }
-        return false;
-      }
-      function coerce(val) {
-        if (val instanceof Error) {
-          return val.stack || val.message;
-        }
-        return val;
-      }
-      function destroy() {
-        console.warn("Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.");
-      }
-      createDebug.enable(createDebug.load());
-      return createDebug;
-    }
-    module2.exports = setup;
-  }
-});
-
-// node_modules/debug/src/browser.js
-var require_browser = __commonJS({
-  "node_modules/debug/src/browser.js"(exports2, module2) {
-    exports2.formatArgs = formatArgs;
-    exports2.save = save;
-    exports2.load = load;
-    exports2.useColors = useColors;
-    exports2.storage = localstorage();
-    exports2.destroy = /* @__PURE__ */ (() => {
-      let warned = false;
-      return () => {
-        if (!warned) {
-          warned = true;
-          console.warn("Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.");
-        }
-      };
-    })();
-    exports2.colors = [
-      "#0000CC",
-      "#0000FF",
-      "#0033CC",
-      "#0033FF",
-      "#0066CC",
-      "#0066FF",
-      "#0099CC",
-      "#0099FF",
-      "#00CC00",
-      "#00CC33",
-      "#00CC66",
-      "#00CC99",
-      "#00CCCC",
-      "#00CCFF",
-      "#3300CC",
-      "#3300FF",
-      "#3333CC",
-      "#3333FF",
-      "#3366CC",
-      "#3366FF",
-      "#3399CC",
-      "#3399FF",
-      "#33CC00",
-      "#33CC33",
-      "#33CC66",
-      "#33CC99",
-      "#33CCCC",
-      "#33CCFF",
-      "#6600CC",
-      "#6600FF",
-      "#6633CC",
-      "#6633FF",
-      "#66CC00",
-      "#66CC33",
-      "#9900CC",
-      "#9900FF",
-      "#9933CC",
-      "#9933FF",
-      "#99CC00",
-      "#99CC33",
-      "#CC0000",
-      "#CC0033",
-      "#CC0066",
-      "#CC0099",
-      "#CC00CC",
-      "#CC00FF",
-      "#CC3300",
-      "#CC3333",
-      "#CC3366",
-      "#CC3399",
-      "#CC33CC",
-      "#CC33FF",
-      "#CC6600",
-      "#CC6633",
-      "#CC9900",
-      "#CC9933",
-      "#CCCC00",
-      "#CCCC33",
-      "#FF0000",
-      "#FF0033",
-      "#FF0066",
-      "#FF0099",
-      "#FF00CC",
-      "#FF00FF",
-      "#FF3300",
-      "#FF3333",
-      "#FF3366",
-      "#FF3399",
-      "#FF33CC",
-      "#FF33FF",
-      "#FF6600",
-      "#FF6633",
-      "#FF9900",
-      "#FF9933",
-      "#FFCC00",
-      "#FFCC33"
-    ];
-    function useColors() {
-      if (typeof window !== "undefined" && window.process && (window.process.type === "renderer" || window.process.__nwjs)) {
-        return true;
-      }
-      if (typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
-        return false;
-      }
-      let m;
-      return typeof document !== "undefined" && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || // Is firebug? http://stackoverflow.com/a/398120/376773
-      typeof window !== "undefined" && window.console && (window.console.firebug || window.console.exception && window.console.table) || // Is firefox >= v31?
-      // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-      typeof navigator !== "undefined" && navigator.userAgent && (m = navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/)) && parseInt(m[1], 10) >= 31 || // Double check webkit in userAgent just in case we are in a worker
-      typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
-    }
-    function formatArgs(args) {
-      args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module2.exports.humanize(this.diff);
-      if (!this.useColors) {
-        return;
-      }
-      const c = "color: " + this.color;
-      args.splice(1, 0, c, "color: inherit");
-      let index = 0;
-      let lastC = 0;
-      args[0].replace(/%[a-zA-Z%]/g, (match) => {
-        if (match === "%%") {
-          return;
-        }
-        index++;
-        if (match === "%c") {
-          lastC = index;
-        }
-      });
-      args.splice(lastC, 0, c);
-    }
-    exports2.log = console.debug || console.log || (() => {
-    });
-    function save(namespaces) {
-      try {
-        if (namespaces) {
-          exports2.storage.setItem("debug", namespaces);
-        } else {
-          exports2.storage.removeItem("debug");
-        }
-      } catch (error) {
-      }
-    }
-    function load() {
-      let r;
-      try {
-        r = exports2.storage.getItem("debug") || exports2.storage.getItem("DEBUG");
-      } catch (error) {
-      }
-      if (!r && typeof process !== "undefined" && "env" in process) {
-        r = process.env.DEBUG;
-      }
-      return r;
-    }
-    function localstorage() {
-      try {
-        return localStorage;
-      } catch (error) {
-      }
-    }
-    module2.exports = require_common()(exports2);
-    var { formatters } = module2.exports;
-    formatters.j = function(v) {
-      try {
-        return JSON.stringify(v);
-      } catch (error) {
-        return "[UnexpectedJSONParseError]: " + error.message;
-      }
-    };
-  }
-});
-
-// node_modules/debug/src/node.js
-var require_node = __commonJS({
-  "node_modules/debug/src/node.js"(exports2, module2) {
-    var tty = require("tty");
-    var util = require("util");
-    exports2.init = init;
-    exports2.log = log;
-    exports2.formatArgs = formatArgs;
-    exports2.save = save;
-    exports2.load = load;
-    exports2.useColors = useColors;
-    exports2.destroy = util.deprecate(
-      () => {
-      },
-      "Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`."
-    );
-    exports2.colors = [6, 2, 3, 4, 5, 1];
-    try {
-      const supportsColor = require("supports-color");
-      if (supportsColor && (supportsColor.stderr || supportsColor).level >= 2) {
-        exports2.colors = [
-          20,
-          21,
-          26,
-          27,
-          32,
-          33,
-          38,
-          39,
-          40,
-          41,
-          42,
-          43,
-          44,
-          45,
-          56,
-          57,
-          62,
-          63,
-          68,
-          69,
-          74,
-          75,
-          76,
-          77,
-          78,
-          79,
-          80,
-          81,
-          92,
-          93,
-          98,
-          99,
-          112,
-          113,
-          128,
-          129,
-          134,
-          135,
-          148,
-          149,
-          160,
-          161,
-          162,
-          163,
-          164,
-          165,
-          166,
-          167,
-          168,
-          169,
-          170,
-          171,
-          172,
-          173,
-          178,
-          179,
-          184,
-          185,
-          196,
-          197,
-          198,
-          199,
-          200,
-          201,
-          202,
-          203,
-          204,
-          205,
-          206,
-          207,
-          208,
-          209,
-          214,
-          215,
-          220,
-          221
-        ];
-      }
-    } catch (error) {
-    }
-    exports2.inspectOpts = Object.keys(process.env).filter((key) => {
-      return /^debug_/i.test(key);
-    }).reduce((obj, key) => {
-      const prop = key.substring(6).toLowerCase().replace(/_([a-z])/g, (_, k) => {
-        return k.toUpperCase();
-      });
-      let val = process.env[key];
-      if (/^(yes|on|true|enabled)$/i.test(val)) {
-        val = true;
-      } else if (/^(no|off|false|disabled)$/i.test(val)) {
-        val = false;
-      } else if (val === "null") {
-        val = null;
-      } else {
-        val = Number(val);
-      }
-      obj[prop] = val;
-      return obj;
-    }, {});
-    function useColors() {
-      return "colors" in exports2.inspectOpts ? Boolean(exports2.inspectOpts.colors) : tty.isatty(process.stderr.fd);
-    }
-    function formatArgs(args) {
-      const { namespace: name, useColors: useColors2 } = this;
-      if (useColors2) {
-        const c = this.color;
-        const colorCode = "\x1B[3" + (c < 8 ? c : "8;5;" + c);
-        const prefix = `  ${colorCode};1m${name} \x1B[0m`;
-        args[0] = prefix + args[0].split("\n").join("\n" + prefix);
-        args.push(colorCode + "m+" + module2.exports.humanize(this.diff) + "\x1B[0m");
-      } else {
-        args[0] = getDate() + name + " " + args[0];
-      }
-    }
-    function getDate() {
-      if (exports2.inspectOpts.hideDate) {
-        return "";
-      }
-      return (/* @__PURE__ */ new Date()).toISOString() + " ";
-    }
-    function log(...args) {
-      return process.stderr.write(util.formatWithOptions(exports2.inspectOpts, ...args) + "\n");
-    }
-    function save(namespaces) {
-      if (namespaces) {
-        process.env.DEBUG = namespaces;
-      } else {
-        delete process.env.DEBUG;
-      }
-    }
-    function load() {
-      return process.env.DEBUG;
-    }
-    function init(debug12) {
-      debug12.inspectOpts = {};
-      const keys = Object.keys(exports2.inspectOpts);
-      for (let i = 0; i < keys.length; i++) {
-        debug12.inspectOpts[keys[i]] = exports2.inspectOpts[keys[i]];
-      }
-    }
-    module2.exports = require_common()(exports2);
-    var { formatters } = module2.exports;
-    formatters.o = function(v) {
-      this.inspectOpts.colors = this.useColors;
-      return util.inspect(v, this.inspectOpts).split("\n").map((str) => str.trim()).join(" ");
-    };
-    formatters.O = function(v) {
-      this.inspectOpts.colors = this.useColors;
-      return util.inspect(v, this.inspectOpts);
-    };
-  }
-});
-
-// node_modules/debug/src/index.js
-var require_src = __commonJS({
-  "node_modules/debug/src/index.js"(exports2, module2) {
-    if (typeof process === "undefined" || process.type === "renderer" || process.browser === true || process.__nwjs) {
-      module2.exports = require_browser();
-    } else {
-      module2.exports = require_node();
-    }
-  }
-});
-
-// node_modules/socket.io-client/node_modules/debug/src/common.js
-var require_common2 = __commonJS({
-  "node_modules/socket.io-client/node_modules/debug/src/common.js"(exports2, module2) {
-    function setup(env) {
-      createDebug.debug = createDebug;
-      createDebug.default = createDebug;
-      createDebug.coerce = coerce;
-      createDebug.disable = disable;
-      createDebug.enable = enable;
-      createDebug.enabled = enabled;
-      createDebug.humanize = require_ms();
-      createDebug.destroy = destroy;
-      Object.keys(env).forEach((key) => {
-        createDebug[key] = env[key];
-      });
-      createDebug.names = [];
-      createDebug.skips = [];
-      createDebug.formatters = {};
-      function selectColor(namespace) {
-        let hash = 0;
-        for (let i = 0; i < namespace.length; i++) {
-          hash = (hash << 5) - hash + namespace.charCodeAt(i);
-          hash |= 0;
-        }
-        return createDebug.colors[Math.abs(hash) % createDebug.colors.length];
-      }
-      createDebug.selectColor = selectColor;
-      function createDebug(namespace) {
-        let prevTime;
-        let enableOverride = null;
-        let namespacesCache;
-        let enabledCache;
-        function debug12(...args) {
-          if (!debug12.enabled) {
-            return;
-          }
-          const self = debug12;
-          const curr = Number(/* @__PURE__ */ new Date());
-          const ms = curr - (prevTime || curr);
-          self.diff = ms;
-          self.prev = prevTime;
-          self.curr = curr;
-          prevTime = curr;
-          args[0] = createDebug.coerce(args[0]);
-          if (typeof args[0] !== "string") {
-            args.unshift("%O");
-          }
-          let index = 0;
-          args[0] = args[0].replace(/%([a-zA-Z%])/g, (match, format) => {
-            if (match === "%%") {
-              return "%";
-            }
-            index++;
-            const formatter = createDebug.formatters[format];
-            if (typeof formatter === "function") {
-              const val = args[index];
-              match = formatter.call(self, val);
-              args.splice(index, 1);
-              index--;
-            }
-            return match;
-          });
-          createDebug.formatArgs.call(self, args);
-          const logFn = self.log || createDebug.log;
-          logFn.apply(self, args);
-        }
-        debug12.namespace = namespace;
-        debug12.useColors = createDebug.useColors();
-        debug12.color = createDebug.selectColor(namespace);
-        debug12.extend = extend;
-        debug12.destroy = createDebug.destroy;
-        Object.defineProperty(debug12, "enabled", {
-          enumerable: true,
-          configurable: false,
-          get: () => {
-            if (enableOverride !== null) {
-              return enableOverride;
-            }
-            if (namespacesCache !== createDebug.namespaces) {
-              namespacesCache = createDebug.namespaces;
-              enabledCache = createDebug.enabled(namespace);
-            }
-            return enabledCache;
-          },
-          set: (v) => {
-            enableOverride = v;
-          }
-        });
-        if (typeof createDebug.init === "function") {
-          createDebug.init(debug12);
-        }
-        return debug12;
-      }
-      function extend(namespace, delimiter) {
-        const newDebug = createDebug(this.namespace + (typeof delimiter === "undefined" ? ":" : delimiter) + namespace);
-        newDebug.log = this.log;
-        return newDebug;
-      }
-      function enable(namespaces) {
-        createDebug.save(namespaces);
-        createDebug.namespaces = namespaces;
-        createDebug.names = [];
-        createDebug.skips = [];
-        let i;
-        const split = (typeof namespaces === "string" ? namespaces : "").split(/[\s,]+/);
-        const len = split.length;
-        for (i = 0; i < len; i++) {
-          if (!split[i]) {
-            continue;
-          }
-          namespaces = split[i].replace(/\*/g, ".*?");
-          if (namespaces[0] === "-") {
-            createDebug.skips.push(new RegExp("^" + namespaces.slice(1) + "$"));
-          } else {
-            createDebug.names.push(new RegExp("^" + namespaces + "$"));
-          }
-        }
-      }
-      function disable() {
-        const namespaces = [
-          ...createDebug.names.map(toNamespace),
-          ...createDebug.skips.map(toNamespace).map((namespace) => "-" + namespace)
-        ].join(",");
-        createDebug.enable("");
-        return namespaces;
-      }
-      function enabled(name) {
-        if (name[name.length - 1] === "*") {
-          return true;
-        }
-        let i;
-        let len;
-        for (i = 0, len = createDebug.skips.length; i < len; i++) {
-          if (createDebug.skips[i].test(name)) {
-            return false;
-          }
-        }
-        for (i = 0, len = createDebug.names.length; i < len; i++) {
-          if (createDebug.names[i].test(name)) {
-            return true;
-          }
-        }
-        return false;
-      }
-      function toNamespace(regexp) {
-        return regexp.toString().substring(2, regexp.toString().length - 2).replace(/\.\*\?$/, "*");
-      }
-      function coerce(val) {
-        if (val instanceof Error) {
-          return val.stack || val.message;
-        }
-        return val;
-      }
-      function destroy() {
-        console.warn("Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.");
-      }
-      createDebug.enable(createDebug.load());
-      return createDebug;
-    }
-    module2.exports = setup;
-  }
-});
-
-// node_modules/socket.io-client/node_modules/debug/src/browser.js
-var require_browser2 = __commonJS({
-  "node_modules/socket.io-client/node_modules/debug/src/browser.js"(exports2, module2) {
-    exports2.formatArgs = formatArgs;
-    exports2.save = save;
-    exports2.load = load;
-    exports2.useColors = useColors;
-    exports2.storage = localstorage();
-    exports2.destroy = /* @__PURE__ */ (() => {
-      let warned = false;
-      return () => {
-        if (!warned) {
-          warned = true;
-          console.warn("Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.");
-        }
-      };
-    })();
-    exports2.colors = [
-      "#0000CC",
-      "#0000FF",
-      "#0033CC",
-      "#0033FF",
-      "#0066CC",
-      "#0066FF",
-      "#0099CC",
-      "#0099FF",
-      "#00CC00",
-      "#00CC33",
-      "#00CC66",
-      "#00CC99",
-      "#00CCCC",
-      "#00CCFF",
-      "#3300CC",
-      "#3300FF",
-      "#3333CC",
-      "#3333FF",
-      "#3366CC",
-      "#3366FF",
-      "#3399CC",
-      "#3399FF",
-      "#33CC00",
-      "#33CC33",
-      "#33CC66",
-      "#33CC99",
-      "#33CCCC",
-      "#33CCFF",
-      "#6600CC",
-      "#6600FF",
-      "#6633CC",
-      "#6633FF",
-      "#66CC00",
-      "#66CC33",
-      "#9900CC",
-      "#9900FF",
-      "#9933CC",
-      "#9933FF",
-      "#99CC00",
-      "#99CC33",
-      "#CC0000",
-      "#CC0033",
-      "#CC0066",
-      "#CC0099",
-      "#CC00CC",
-      "#CC00FF",
-      "#CC3300",
-      "#CC3333",
-      "#CC3366",
-      "#CC3399",
-      "#CC33CC",
-      "#CC33FF",
-      "#CC6600",
-      "#CC6633",
-      "#CC9900",
-      "#CC9933",
-      "#CCCC00",
-      "#CCCC33",
-      "#FF0000",
-      "#FF0033",
-      "#FF0066",
-      "#FF0099",
-      "#FF00CC",
-      "#FF00FF",
-      "#FF3300",
-      "#FF3333",
-      "#FF3366",
-      "#FF3399",
-      "#FF33CC",
-      "#FF33FF",
-      "#FF6600",
-      "#FF6633",
-      "#FF9900",
-      "#FF9933",
-      "#FFCC00",
-      "#FFCC33"
-    ];
-    function useColors() {
-      if (typeof window !== "undefined" && window.process && (window.process.type === "renderer" || window.process.__nwjs)) {
-        return true;
-      }
-      if (typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
-        return false;
-      }
-      let m;
-      return typeof document !== "undefined" && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || // Is firebug? http://stackoverflow.com/a/398120/376773
-      typeof window !== "undefined" && window.console && (window.console.firebug || window.console.exception && window.console.table) || // Is firefox >= v31?
-      // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-      typeof navigator !== "undefined" && navigator.userAgent && (m = navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/)) && parseInt(m[1], 10) >= 31 || // Double check webkit in userAgent just in case we are in a worker
-      typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
-    }
-    function formatArgs(args) {
-      args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module2.exports.humanize(this.diff);
-      if (!this.useColors) {
-        return;
-      }
-      const c = "color: " + this.color;
-      args.splice(1, 0, c, "color: inherit");
-      let index = 0;
-      let lastC = 0;
-      args[0].replace(/%[a-zA-Z%]/g, (match) => {
-        if (match === "%%") {
-          return;
-        }
-        index++;
-        if (match === "%c") {
-          lastC = index;
-        }
-      });
-      args.splice(lastC, 0, c);
-    }
-    exports2.log = console.debug || console.log || (() => {
-    });
-    function save(namespaces) {
-      try {
-        if (namespaces) {
-          exports2.storage.setItem("debug", namespaces);
-        } else {
-          exports2.storage.removeItem("debug");
-        }
-      } catch (error) {
-      }
-    }
-    function load() {
-      let r;
-      try {
-        r = exports2.storage.getItem("debug");
-      } catch (error) {
-      }
-      if (!r && typeof process !== "undefined" && "env" in process) {
-        r = process.env.DEBUG;
-      }
-      return r;
-    }
-    function localstorage() {
-      try {
-        return localStorage;
-      } catch (error) {
-      }
-    }
-    module2.exports = require_common2()(exports2);
-    var { formatters } = module2.exports;
-    formatters.j = function(v) {
-      try {
-        return JSON.stringify(v);
-      } catch (error) {
-        return "[UnexpectedJSONParseError]: " + error.message;
-      }
-    };
-  }
-});
-
-// node_modules/socket.io-client/node_modules/debug/src/node.js
-var require_node2 = __commonJS({
-  "node_modules/socket.io-client/node_modules/debug/src/node.js"(exports2, module2) {
-    var tty = require("tty");
-    var util = require("util");
-    exports2.init = init;
-    exports2.log = log;
-    exports2.formatArgs = formatArgs;
-    exports2.save = save;
-    exports2.load = load;
-    exports2.useColors = useColors;
-    exports2.destroy = util.deprecate(
-      () => {
-      },
-      "Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`."
-    );
-    exports2.colors = [6, 2, 3, 4, 5, 1];
-    try {
-      const supportsColor = require("supports-color");
-      if (supportsColor && (supportsColor.stderr || supportsColor).level >= 2) {
-        exports2.colors = [
-          20,
-          21,
-          26,
-          27,
-          32,
-          33,
-          38,
-          39,
-          40,
-          41,
-          42,
-          43,
-          44,
-          45,
-          56,
-          57,
-          62,
-          63,
-          68,
-          69,
-          74,
-          75,
-          76,
-          77,
-          78,
-          79,
-          80,
-          81,
-          92,
-          93,
-          98,
-          99,
-          112,
-          113,
-          128,
-          129,
-          134,
-          135,
-          148,
-          149,
-          160,
-          161,
-          162,
-          163,
-          164,
-          165,
-          166,
-          167,
-          168,
-          169,
-          170,
-          171,
-          172,
-          173,
-          178,
-          179,
-          184,
-          185,
-          196,
-          197,
-          198,
-          199,
-          200,
-          201,
-          202,
-          203,
-          204,
-          205,
-          206,
-          207,
-          208,
-          209,
-          214,
-          215,
-          220,
-          221
-        ];
-      }
-    } catch (error) {
-    }
-    exports2.inspectOpts = Object.keys(process.env).filter((key) => {
-      return /^debug_/i.test(key);
-    }).reduce((obj, key) => {
-      const prop = key.substring(6).toLowerCase().replace(/_([a-z])/g, (_, k) => {
-        return k.toUpperCase();
-      });
-      let val = process.env[key];
-      if (/^(yes|on|true|enabled)$/i.test(val)) {
-        val = true;
-      } else if (/^(no|off|false|disabled)$/i.test(val)) {
-        val = false;
-      } else if (val === "null") {
-        val = null;
-      } else {
-        val = Number(val);
-      }
-      obj[prop] = val;
-      return obj;
-    }, {});
-    function useColors() {
-      return "colors" in exports2.inspectOpts ? Boolean(exports2.inspectOpts.colors) : tty.isatty(process.stderr.fd);
-    }
-    function formatArgs(args) {
-      const { namespace: name, useColors: useColors2 } = this;
-      if (useColors2) {
-        const c = this.color;
-        const colorCode = "\x1B[3" + (c < 8 ? c : "8;5;" + c);
-        const prefix = `  ${colorCode};1m${name} \x1B[0m`;
-        args[0] = prefix + args[0].split("\n").join("\n" + prefix);
-        args.push(colorCode + "m+" + module2.exports.humanize(this.diff) + "\x1B[0m");
-      } else {
-        args[0] = getDate() + name + " " + args[0];
-      }
-    }
-    function getDate() {
-      if (exports2.inspectOpts.hideDate) {
-        return "";
-      }
-      return (/* @__PURE__ */ new Date()).toISOString() + " ";
-    }
-    function log(...args) {
-      return process.stderr.write(util.formatWithOptions(exports2.inspectOpts, ...args) + "\n");
-    }
-    function save(namespaces) {
-      if (namespaces) {
-        process.env.DEBUG = namespaces;
-      } else {
-        delete process.env.DEBUG;
-      }
-    }
-    function load() {
-      return process.env.DEBUG;
-    }
-    function init(debug12) {
-      debug12.inspectOpts = {};
-      const keys = Object.keys(exports2.inspectOpts);
-      for (let i = 0; i < keys.length; i++) {
-        debug12.inspectOpts[keys[i]] = exports2.inspectOpts[keys[i]];
-      }
-    }
-    module2.exports = require_common2()(exports2);
-    var { formatters } = module2.exports;
-    formatters.o = function(v) {
-      this.inspectOpts.colors = this.useColors;
-      return util.inspect(v, this.inspectOpts).split("\n").map((str) => str.trim()).join(" ");
-    };
-    formatters.O = function(v) {
-      this.inspectOpts.colors = this.useColors;
-      return util.inspect(v, this.inspectOpts);
-    };
-  }
-});
-
-// node_modules/socket.io-client/node_modules/debug/src/index.js
-var require_src2 = __commonJS({
-  "node_modules/socket.io-client/node_modules/debug/src/index.js"(exports2, module2) {
-    if (typeof process === "undefined" || process.type === "renderer" || process.browser === true || process.__nwjs) {
-      module2.exports = require_browser2();
-    } else {
-      module2.exports = require_node2();
-    }
-  }
-});
-
 // src/index.ts
 var import_node_crypto2 = require("node:crypto");
-var import_node_fs3 = __toESM(require("node:fs"));
 var import_node_os2 = __toESM(require("node:os"));
+
+// src/client-store.ts
+var import_node_fs = __toESM(require("node:fs"));
+var import_node_os = __toESM(require("node:os"));
+var import_node_path = __toESM(require("node:path"));
+function configDir() {
+  const base = process.env.XDG_CONFIG_HOME || import_node_path.default.join(import_node_os.default.homedir(), ".config");
+  return import_node_path.default.join(base, "foundry-connect");
+}
+function registeredClientPath() {
+  return import_node_path.default.join(configDir(), "channel-client.json");
+}
+function isRegisteredClient(v) {
+  if (!v || typeof v !== "object") return false;
+  const c = v;
+  return typeof c.instanceHost === "string" && typeof c.clientId === "string" && Number.isInteger(c.redirectPort) && c.redirectPort > 0 && c.redirectPort < 65536;
+}
+function loadRegisteredClient() {
+  try {
+    const parsed = JSON.parse(import_node_fs.default.readFileSync(registeredClientPath(), "utf8"));
+    if (!isRegisteredClient(parsed)) return null;
+    return { instanceHost: parsed.instanceHost, clientId: parsed.clientId, redirectPort: parsed.redirectPort };
+  } catch {
+    return null;
+  }
+}
+function saveRegisteredClient(c) {
+  const file = registeredClientPath();
+  import_node_fs.default.mkdirSync(import_node_path.default.dirname(file), { recursive: true, mode: 448 });
+  const tmp = `${file}.${process.pid}.tmp`;
+  const record = { instanceHost: c.instanceHost, clientId: c.clientId, redirectPort: c.redirectPort };
+  import_node_fs.default.writeFileSync(tmp, `${JSON.stringify(record, null, 2)}
+`, { mode: 384 });
+  import_node_fs.default.renameSync(tmp, file);
+}
+function removeLegacySignInFile() {
+  try {
+    import_node_fs.default.rmSync(import_node_path.default.join(configDir(), "channel.json"), { force: true });
+  } catch {
+  }
+}
 
 // src/launch.ts
 var import_node_child_process = require("node:child_process");
-var import_node_fs = __toESM(require("node:fs"));
+var import_node_fs2 = __toESM(require("node:fs"));
 var CHANNEL_FLAGS = ["--channels", "--dangerously-load-development-channels"];
 function namesThisChannel(entry) {
   if (entry.startsWith("plugin:")) {
@@ -1719,7 +593,7 @@ function parentArgv(ppid = process.ppid) {
   if (!Number.isInteger(ppid) || ppid <= 1) return null;
   try {
     if (process.platform === "linux") {
-      return import_node_fs.default.readFileSync(`/proc/${ppid}/cmdline`, "utf8").split("\0").filter(Boolean);
+      return import_node_fs2.default.readFileSync(`/proc/${ppid}/cmdline`, "utf8").split("\0").filter(Boolean);
     }
     const line = process.platform === "win32" ? (0, import_node_child_process.execFileSync)(
       "powershell.exe",
@@ -2128,9 +1002,20 @@ function decode(qs) {
   return qry;
 }
 
+// src/debug-shim.ts
+function createDebug(namespace) {
+  const log = Object.assign(() => {
+  }, {
+    enabled: false,
+    namespace,
+    extend: (ns) => createDebug(`${namespace}:${ns}`)
+  });
+  return log;
+}
+var debug_shim_default = createDebug;
+
 // node_modules/engine.io-client/build/esm-debug/transport.js
-var import_debug = __toESM(require_src(), 1);
-var debug = (0, import_debug.default)("engine.io-client:transport");
+var debug = debug_shim_default("engine.io-client:transport");
 var TransportError = class extends Error {
   constructor(reason, description, context) {
     super(reason);
@@ -2263,8 +1148,7 @@ var Transport = class extends import_component_emitter.Emitter {
 };
 
 // node_modules/engine.io-client/build/esm-debug/transports/polling.js
-var import_debug2 = __toESM(require_src(), 1);
-var debug2 = (0, import_debug2.default)("engine.io-client:polling");
+var debug2 = debug_shim_default("engine.io-client:polling");
 var Polling = class extends Transport {
   constructor() {
     super(...arguments);
@@ -2419,8 +1303,7 @@ try {
 var hasCORS = value;
 
 // node_modules/engine.io-client/build/esm-debug/transports/polling-xhr.js
-var import_debug3 = __toESM(require_src(), 1);
-var debug3 = (0, import_debug3.default)("engine.io-client:polling");
+var debug3 = debug_shim_default("engine.io-client:polling");
 function empty() {
 }
 var BaseXHR = class extends Polling {
@@ -2675,8 +1558,7 @@ var WebSocket = Native ? class extends Native {
 } : void 0;
 
 // node_modules/engine.io-client/build/esm-debug/transports/websocket.js
-var import_debug4 = __toESM(require_src(), 1);
-var debug4 = (0, import_debug4.default)("engine.io-client:websocket");
+var debug4 = debug_shim_default("engine.io-client:websocket");
 var isReactNative = typeof navigator !== "undefined" && typeof navigator.product === "string" && navigator.product.toLowerCase() === "reactnative";
 var BaseWS = class extends Transport {
   get name() {
@@ -2795,8 +1677,7 @@ var WS = class extends BaseWS {
 };
 
 // node_modules/engine.io-client/build/esm-debug/transports/webtransport.js
-var import_debug5 = __toESM(require_src(), 1);
-var debug5 = (0, import_debug5.default)("engine.io-client:webtransport");
+var debug5 = debug_shim_default("engine.io-client:webtransport");
 var WT = class extends Transport {
   get name() {
     return "webtransport";
@@ -2933,8 +1814,7 @@ function queryKey(uri, query) {
 
 // node_modules/engine.io-client/build/esm-debug/socket.js
 var import_component_emitter3 = __toESM(require_cjs(), 1);
-var import_debug6 = __toESM(require_src(), 1);
-var debug6 = (0, import_debug6.default)("engine.io-client:socket");
+var debug6 = debug_shim_default("engine.io-client:socket");
 var withEventListeners = typeof addEventListener === "function" && typeof removeEventListener === "function";
 var OFFLINE_EVENT_LISTENERS = [];
 if (withEventListeners) {
@@ -3515,8 +2395,7 @@ Socket.protocol = protocol;
 var protocol2 = Socket.protocol;
 
 // node_modules/socket.io-client/build/esm-debug/url.js
-var import_debug7 = __toESM(require_src2(), 1);
-var debug7 = (0, import_debug7.default)("socket.io-client:url");
+var debug7 = debug_shim_default("socket.io-client:url");
 function url(uri, path2 = "", loc) {
   let obj = uri;
   loc = loc || typeof location !== "undefined" && location;
@@ -3670,8 +2549,7 @@ function _reconstructPacket(data, buffers) {
 }
 
 // node_modules/socket.io-parser/build/esm-debug/index.js
-var import_debug8 = __toESM(require_src(), 1);
-var debug8 = (0, import_debug8.default)("socket.io-parser");
+var debug8 = debug_shim_default("socket.io-parser");
 var RESERVED_EVENTS = [
   "connect",
   // used on the client side
@@ -3977,8 +2855,7 @@ function on(obj, ev, fn) {
 
 // node_modules/socket.io-client/build/esm-debug/socket.js
 var import_component_emitter5 = __toESM(require_cjs(), 1);
-var import_debug9 = __toESM(require_src2(), 1);
-var debug9 = (0, import_debug9.default)("socket.io-client:socket");
+var debug9 = debug_shim_default("socket.io-client:socket");
 var RESERVED_EVENTS2 = Object.freeze({
   connect: 1,
   connect_error: 1,
@@ -4804,8 +3681,7 @@ Backoff.prototype.setJitter = function(jitter) {
 
 // node_modules/socket.io-client/build/esm-debug/manager.js
 var import_component_emitter6 = __toESM(require_cjs(), 1);
-var import_debug10 = __toESM(require_src2(), 1);
-var debug10 = (0, import_debug10.default)("socket.io-client:manager");
+var debug10 = debug_shim_default("socket.io-client:manager");
 var Manager = class extends import_component_emitter6.Emitter {
   constructor(uri, opts) {
     var _a;
@@ -5173,8 +4049,7 @@ var Manager = class extends import_component_emitter6.Emitter {
 };
 
 // node_modules/socket.io-client/build/esm-debug/index.js
-var import_debug11 = __toESM(require_src2(), 1);
-var debug11 = (0, import_debug11.default)("socket.io-client");
+var debug11 = debug_shim_default("socket.io-client");
 var cache = {};
 function lookup(uri, opts) {
   if (typeof uri === "object") {
@@ -5234,55 +4109,11 @@ function isClaudeCodeVersionSupported(v) {
 var import_node_child_process2 = require("node:child_process");
 var import_node_crypto = require("node:crypto");
 var import_node_http = __toESM(require("node:http"));
-
-// src/token-store.ts
-var import_node_fs2 = __toESM(require("node:fs"));
-var import_node_os = __toESM(require("node:os"));
-var import_node_path = __toESM(require("node:path"));
-function storedLoginPath() {
-  const base = process.env.XDG_CONFIG_HOME || import_node_path.default.join(import_node_os.default.homedir(), ".config");
-  return import_node_path.default.join(base, "foundry-connect", "channel.json");
-}
-function isStoredToken(v) {
-  if (!v || typeof v !== "object") return false;
-  const t = v;
-  return typeof t.instanceHost === "string" && typeof t.clientId === "string" && typeof t.redirectPort === "number" && typeof t.accessToken === "string" && typeof t.expiresAt === "string";
-}
-function loadToken() {
-  const file = storedLoginPath();
-  let raw;
-  try {
-    raw = import_node_fs2.default.readFileSync(file, "utf8");
-  } catch {
-    return null;
-  }
-  try {
-    const parsed = JSON.parse(raw);
-    if (!isStoredToken(parsed)) return null;
-    if ((import_node_fs2.default.statSync(file).mode & 63) !== 0) import_node_fs2.default.chmodSync(file, 384);
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-function saveToken(t) {
-  const file = storedLoginPath();
-  const dir = import_node_path.default.dirname(file);
-  import_node_fs2.default.mkdirSync(dir, { recursive: true, mode: 448 });
-  import_node_fs2.default.chmodSync(dir, 448);
-  const tmp = `${file}.${process.pid}.tmp`;
-  import_node_fs2.default.writeFileSync(tmp, `${JSON.stringify(t, null, 2)}
-`, { mode: 384 });
-  import_node_fs2.default.chmodSync(tmp, 384);
-  import_node_fs2.default.renameSync(tmp, file);
-}
-function isUsable(t, instanceHost) {
-  return !!t && t.instanceHost === instanceHost && Date.parse(t.expiresAt) > Date.now() + 6e4;
-}
-
-// src/login.ts
-var DEFAULT_LIFETIME_SECONDS = 90 * 24 * 60 * 60;
 var LOOPBACK_HOSTS = /* @__PURE__ */ new Set(["127.0.0.1", "localhost", "[::1]"]);
+function configuredOption(raw) {
+  const v = (raw ?? "").trim();
+  return v && !v.includes("${") ? v : "";
+}
 function instanceBaseUrl(instanceHost) {
   const raw = instanceHost.trim();
   if (/^https?:\/\//i.test(raw)) {
@@ -5368,7 +4199,7 @@ async function login(instanceHost, opts = {}) {
 `));
   const openUrl = opts.openUrl ?? openInBrowser;
   const timeoutMs = opts.timeoutMs ?? 10 * 6e4;
-  const previous = loadToken();
+  const previous = loadRegisteredClient();
   let clientId = null;
   let callback;
   if (previous && previous.instanceHost === instanceHost) {
@@ -5382,7 +4213,10 @@ async function login(instanceHost, opts = {}) {
     callback = await listenForCallback(0, timeoutMs);
   }
   try {
-    if (!clientId) clientId = await register(base, callback.port);
+    if (!clientId) {
+      clientId = await register(base, callback.port);
+      saveRegisteredClient({ instanceHost, clientId, redirectPort: callback.port });
+    }
     const redirectUri = `http://127.0.0.1:${callback.port}/callback`;
     const verifier = (0, import_node_crypto.randomBytes)(32).toString("base64url");
     const challenge = (0, import_node_crypto.createHash)("sha256").update(verifier).digest("base64url");
@@ -5418,20 +4252,11 @@ async function login(instanceHost, opts = {}) {
     });
     if (!res.ok) throw new Error(`sign in exchange failed with HTTP ${res.status}`);
     const body = await res.json();
-    if (typeof body.access_token !== "string") {
+    if (typeof body.access_token !== "string" || !body.access_token) {
       throw new Error("sign in exchange returned an unexpected response");
     }
-    const lifetimeSeconds = typeof body.expires_in === "number" && body.expires_in > 0 ? body.expires_in : DEFAULT_LIFETIME_SECONDS;
-    const stored = {
-      instanceHost,
-      clientId,
-      redirectPort: callback.port,
-      accessToken: body.access_token,
-      expiresAt: new Date(Date.now() + lifetimeSeconds * 1e3).toISOString()
-    };
-    saveToken(stored);
     notify("Foundry Connect: signed in. The channel will connect now.");
-    return stored;
+    return { instanceHost, accessToken: body.access_token };
   } finally {
     callback.close();
   }
@@ -5685,7 +4510,7 @@ var StdioTransport = class {
 };
 
 // src/server.ts
-var CHANNEL_VERSION = "0.7.0";
+var CHANNEL_VERSION = "0.8.0";
 var INSTRUCTIONS = [
   'Messages from the Foundry Connect chat drawer arrive as <channel source="foundry-channel" conversation_id="...">.',
   "The person who sent them is the signed in owner of this session, typing in their Foundry Connect browser window.",
@@ -5741,10 +4566,22 @@ function createChannelServer(opts) {
           },
           required: ["conversation_id", "text"]
         }
+      },
+      {
+        name: "sign_in",
+        description: "Sign the Foundry Connect chat channel in again in the browser, for example after it reports that its sign in expired. Returns one status line; the result arrives later as a channel notice.",
+        inputSchema: { type: "object", properties: {} }
       }
     ]
   }));
   server.setRequestHandler("tools/call", async (params) => {
+    if (params.name === "sign_in") {
+      try {
+        return { content: [{ type: "text", text: await opts.onSignIn() }] };
+      } catch (err) {
+        return { isError: true, content: [{ type: "text", text: `sign in not started: ${err instanceof Error ? err.message : String(err)}` }] };
+      }
+    }
     if (params.name !== "reply") {
       return { isError: true, content: [{ type: "text", text: `unknown tool: ${String(params.name)}` }] };
     }
@@ -5799,28 +4636,10 @@ ${contextBlock(context)}` : text;
 }
 
 // src/index.ts
-function configuredHost(raw) {
-  const v = (raw ?? "").trim();
-  return v && !v.includes("${") ? v : "";
-}
-async function runLoginCommand(arg) {
-  const host = configuredHost(arg) || configuredHost(process.env.FOUNDRY_INSTANCE_HOST) || loadToken()?.instanceHost || "";
-  if (!host) {
-    process.stdout.write("Foundry Connect: no instance host is set. Set it in the plugin options (/plugin) and try again.\n");
-    process.exit(1);
-  }
-  try {
-    await login(host, { notify: (m) => process.stdout.write(`${m}
-`) });
-    process.exit(0);
-  } catch (err) {
-    process.stdout.write(`Foundry Connect: sign in failed: ${err instanceof Error ? err.message : String(err)}
-`);
-    process.exit(1);
-  }
-}
 async function runChannel() {
-  const host = configuredHost(process.env.FOUNDRY_INSTANCE_HOST);
+  removeLegacySignInFile();
+  const host = configuredOption(process.env.FOUNDRY_INSTANCE_HOST);
+  const configuredCredential = configuredOption(process.env.FOUNDRY_CHANNEL_ACCESS_TOKEN);
   const asChannel = loadedAsChannel(parentArgv());
   const descriptor = {
     sessionId: (0, import_node_crypto2.randomUUID)(),
@@ -5830,23 +4649,63 @@ async function runChannel() {
     channelVersion: CHANNEL_VERSION
   };
   let link = null;
+  let pendingAuthorizeUrl = "";
+  let signingIn = false;
+  const idleReason = () => {
+    if (!asChannel) return "this Claude Code session was not started with the Foundry Connect chat channel.";
+    if (typeof globalThis.WebSocket !== "function") {
+      return `the channel needs Node 22 or later, and this is Node ${process.versions.node}. Update Node and restart Claude Code.`;
+    }
+    if (!host) return "no instance host is set. Set it in the plugin options (/plugin) and restart Claude Code.";
+    return "";
+  };
   const channel = createChannelServer({
     onReply: async (conversationId, text) => {
-      if (!asChannel) throw new Error("this Claude Code session was not started with the Foundry Connect chat channel.");
+      const idle = idleReason();
+      if (idle) throw new Error(idle);
       if (!link) throw new Error("the channel is not connected to Foundry Connect. Run /foundry-channel-login.");
       await link.reply(conversationId, text);
     },
-    onPermissionRequest: (r) => link?.permissionRequest(r)
+    onPermissionRequest: (r) => link?.permissionRequest(r),
+    onSignIn: () => {
+      const idle = idleReason();
+      if (idle) throw new Error(idle);
+      return signIn();
+    }
   });
-  const connect = () => {
-    const stored = loadToken();
-    if (!isUsable(stored, host) || link && !link.stopped()) return false;
-    link = startLink({ instanceHost: host, token: stored.accessToken, descriptor, server: channel });
-    return true;
+  const notice = (text) => {
+    channel.pushNotice(text).catch(() => {
+    });
+  };
+  const connectWith = (credential) => {
+    if (link && !link.stopped()) return;
+    link = startLink({ instanceHost: host, token: credential, descriptor, server: channel });
+  };
+  const signIn = () => {
+    if (link && !link.stopped()) {
+      throw new Error(
+        "the channel is already connected to Foundry Connect, or is retrying a dropped connection, so there is nothing to sign in again. Restart Claude Code to start over."
+      );
+    }
+    if (signingIn) {
+      if (pendingAuthorizeUrl) openInBrowser(pendingAuthorizeUrl);
+      return "A sign in is already waiting, so its page was opened in the browser again. Finish it there.";
+    }
+    signingIn = true;
+    const openUrl = (url2) => {
+      pendingAuthorizeUrl = url2;
+      openInBrowser(url2);
+    };
+    login(host, { notify: notice, openUrl }).then((result) => connectWith(result.accessToken)).catch((err) => {
+      notice(`Foundry Connect channel: sign in did not finish (${err instanceof Error ? err.message : String(err)}). Run /foundry-channel-login to try again.`);
+    }).finally(() => {
+      signingIn = false;
+      pendingAuthorizeUrl = "";
+    });
+    return "Opening the browser to sign in to Foundry Connect. The channel connects once the sign in is approved there.";
   };
   const shutdown = () => {
     link?.stop();
-    import_node_fs3.default.unwatchFile(storedLoginPath());
     process.exit(0);
   };
   const transport = new StdioTransport();
@@ -5854,35 +4713,20 @@ async function runChannel() {
   process.stdin.on("end", shutdown);
   channel.server.oninitialized = () => {
     if (!asChannel) return;
-    if (typeof globalThis.WebSocket !== "function") {
-      channel.pushNotice(`Foundry Connect channel: it needs Node 22 or later, and this is Node ${process.versions.node}, so the channel is idle. Update Node and restart Claude Code.`).catch(() => {
-      });
+    const idle = idleReason();
+    if (idle) {
+      notice(`Foundry Connect channel: ${idle} The channel is idle.`);
       return;
     }
-    if (!host) {
-      channel.pushNotice("Foundry Connect channel: no instance host is set, so the channel is idle. Set it in the plugin options (/plugin) and restart Claude Code.").catch(() => {
-      });
+    if (configuredCredential) {
+      connectWith(configuredCredential);
       return;
     }
-    import_node_fs3.default.watchFile(storedLoginPath(), { interval: 2e3 }, () => {
-      connect();
-    });
-    if (connect()) return;
-    if (loadToken()) {
-      channel.pushNotice("Foundry Connect channel: the stored sign in expired or belongs to another instance. Run /foundry-channel-login to sign in.").catch(() => {
-      });
-      return;
-    }
-    login(host, { notify: (m) => channel.pushNotice(m).catch(() => {
-    }) }).catch((err) => {
-      channel.pushNotice(`Foundry Connect channel: sign in did not finish (${err instanceof Error ? err.message : String(err)}). Run /foundry-channel-login to try again.`).catch(() => {
-      });
-    });
+    signIn();
   };
   await channel.server.connect(transport);
 }
-var main = process.argv[2] === "login" ? () => runLoginCommand(process.argv[3]) : runChannel;
-main().catch((err) => {
+runChannel().catch((err) => {
   process.stderr.write(`foundry-channel: ${err instanceof Error ? err.message : String(err)}
 `);
   process.exit(1);

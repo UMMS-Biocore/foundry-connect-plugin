@@ -1,8 +1,8 @@
 {
   "name": "foundry-connect-channel",
   "displayName": "Foundry Connect chat channel",
-  "version": "0.7.0",
-  "description": "Optional companion to the foundry-connect plugin: a local Claude Code channel that links a terminal session to the Foundry Connect chat drawer, so messages typed in the web app reach this session. Includes the /foundry-channel-login command.",
+  "version": "0.8.0",
+  "description": "Optional companion to the foundry-connect plugin: a local Claude Code channel that links a terminal session to the Foundry Connect chat drawer, so messages typed in the web app reach this session. Signs in through the browser and keeps the credential in memory only. Includes the /foundry-channel-login command.",
   "author": {
     "name": "UMMS Biocore",
     "email": "alper.kucukural@umassmed.edu"
@@ -26,6 +26,12 @@
       "type": "string",
       "title": "Foundry Connect instance hostname",
       "description": "Your Foundry Connect HOSTNAME ONLY, e.g. foundry.your-org.edu. Do not include https://, do not include a trailing slash, and do not include /mcp. Use the same hostname you gave the foundry-connect plugin."
+    },
+    "access_token": {
+      "type": "string",
+      "title": "Foundry Connect personal access token (optional)",
+      "description": "Leave empty to sign in through the browser each time the channel starts. Only for setups with no browser: a personal access token you create in Foundry Connect. It is stored as a sensitive value and sent only to the instance above.",
+      "sensitive": true
     }
   },
   "mcpServers": "./mcp/claude.json",

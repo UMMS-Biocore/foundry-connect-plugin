@@ -1,7 +1,7 @@
 import { REQUEST_ID_PATTERN, type PageContext, type PermissionBehavior } from './envelope.js';
 import { McpServer } from './mcp.js';
 
-export const CHANNEL_VERSION = '0.7.0';
+export const CHANNEL_VERSION = '0.8.0';
 
 export type PermissionRequest = {
   requestId: string;
@@ -13,6 +13,9 @@ export type PermissionRequest = {
 export type ChannelServerOptions = {
   onReply(conversationId: number, text: string): void | Promise<void>;
   onPermissionRequest(r: PermissionRequest): void;
+  // Starts a new browser sign in and returns one status line at once; the outcome arrives
+  // later as a notice. Never returns the credential.
+  onSignIn(): string | Promise<string>;
 };
 
 export type ChannelServer = {
@@ -89,10 +92,23 @@ export function createChannelServer(opts: ChannelServerOptions): ChannelServer {
           required: ['conversation_id', 'text'],
         },
       },
+      {
+        name: 'sign_in',
+        description:
+          'Sign the Foundry Connect chat channel in again in the browser, for example after it reports that its sign in expired. Returns one status line; the result arrives later as a channel notice.',
+        inputSchema: { type: 'object', properties: {} },
+      },
     ],
   }));
 
   server.setRequestHandler('tools/call', async (params) => {
+    if (params.name === 'sign_in') {
+      try {
+        return { content: [{ type: 'text', text: await opts.onSignIn() }] };
+      } catch (err) {
+        return { isError: true, content: [{ type: 'text', text: `sign in not started: ${err instanceof Error ? err.message : String(err)}` }] };
+      }
+    }
     if (params.name !== 'reply') {
       return { isError: true, content: [{ type: 'text', text: `unknown tool: ${String(params.name)}` }] };
     }
