@@ -21,7 +21,7 @@
     "mcp",
     "genomics"
   ],
-  "icon": "./assets/icon.svg",
+  "icon": "./assets/icon.png",
   "userConfig": {
     "instance_host": {
       "type": "string",

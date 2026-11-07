@@ -20,6 +20,9 @@ const dst = join(root, 'plugins/foundry-connect-directory');
 // Copied as they are. README.md is the directory copy's own file.
 const SYNCED_DIRS = ['skills', 'commands', 'assets'];
 
+// The only file types the directory accepts from an unverified organization.
+const ALLOWED_FILE = /\.(md|txt|json|ya?ml|png|jpe?g|gif|webp|ico)$/i;
+
 const DIRECTORY_DESCRIPTION =
   'Run the Foundry Connect pipeline lifecycle from Claude: explore runs, access and analyze results, ' +
   'share them back, author processes, build or extend pipelines, launch runs and apps, and answer ' +
@@ -63,6 +66,13 @@ if (process.argv.includes('--check')) {
   for (const [k, v] of want) if (!have.has(k) || !have.get(k).equals(v)) problems.push(k);
   for (const k of have.keys()) if (!want.has(k)) problems.push(`${k} (not in foundry-connect)`);
   if (!existsSync(join(dst, 'README.md'))) problems.push('README.md (missing)');
+  // The directory refuses any other file type, and any file starting with #!,
+  // from an organization it has not verified.
+  for (const f of files(dst)) {
+    const rel = relative(dst, f);
+    if (!ALLOWED_FILE.test(rel)) problems.push(`${rel} (file type the directory refuses)`);
+    else if (readFileSync(f).subarray(0, 2).toString() === '#!') problems.push(`${rel} (starts with #!)`);
+  }
   if (problems.length) {
     console.error('plugins/foundry-connect-directory is stale. Run node scripts/sync-directory.mjs. Differs:');
     for (const p of problems) console.error(`  ${p}`);
