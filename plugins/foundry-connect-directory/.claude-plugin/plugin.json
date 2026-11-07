@@ -1,0 +1,25 @@
+{
+  "name": "foundry-connect",
+  "displayName": "Foundry Connect",
+  "version": "0.7.5",
+  "description": "Run the Foundry Connect pipeline lifecycle from Claude: explore runs, access and analyze results, share them back, author processes, build or extend pipelines, launch runs and apps, and answer questions from a project knowledge base. Includes the foundry-pipelines, foundry-pipeline-dev and foundry-kb skills and the /foundry-* commands. Connect your own Foundry Connect instance as an MCP connector first, as the README describes.",
+  "author": {
+    "name": "UMMS Biocore",
+    "email": "alper.kucukural@umassmed.edu"
+  },
+  "homepage": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
+  "repository": "https://github.com/UMMS-Biocore/foundry-connect-plugin",
+  "documentationUrl": "https://viafoundry.umassmed.edu/docs/developer-guides/using-viafoundry-with-claude/",
+  "supportUrl": "https://viafoundry.umassmed.edu/docs/resources/contact-support/",
+  "privacyPolicyUrl": "https://viafoundry.umassmed.edu/docs/privacy-policy/",
+  "termsOfServiceUrl": "https://github.com/UMMS-Biocore/foundry-connect-plugin/blob/main/LICENSE",
+  "license": "Apache-2.0",
+  "keywords": [
+    "foundry-connect",
+    "bioinformatics",
+    "pipelines",
+    "mcp",
+    "genomics"
+  ],
+  "icon": "./assets/icon.svg"
+}
