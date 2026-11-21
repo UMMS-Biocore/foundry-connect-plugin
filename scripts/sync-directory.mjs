@@ -26,7 +26,7 @@ const ALLOWED_FILE = /\.(md|txt|json|ya?ml|png|jpe?g|gif|webp|ico)$/i;
 const DIRECTORY_DESCRIPTION =
   'Run the Foundry Connect pipeline lifecycle from Claude: explore runs, access and analyze results, ' +
   'share them back, author processes, build or extend pipelines, launch runs and apps, and answer ' +
-  'questions from a project knowledge base. Includes the foundry-pipelines, foundry-pipeline-dev and ' +
+  'questions from a project knowledge base. Includes the foundry-pipelines, foundry-pipeline-dev, foundry-cluster-notebook and ' +
   'foundry-kb skills and the /foundry-* commands. Connect your own Foundry Connect instance as an MCP ' +
   'connector first, as the README describes.';
 
