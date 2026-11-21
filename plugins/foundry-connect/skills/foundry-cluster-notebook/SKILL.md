@@ -46,7 +46,7 @@ that commit. The Foundry Connect transport and the safety rules below are our ow
    keep working. A notebook that is still queued has no kernel yet, so check `hpc_app_status`
    until it is running.
 5. If the call fails with `execution_not_granted`, tell the person to reconnect the plugin or
-   connector and tick the cluster execution permission, then retry. Do not work around it.
+   connector and tick **Run code in my cluster notebooks**, then retry. Do not work around it.
 
 ## Work in the notebook
 
@@ -60,8 +60,11 @@ that commit. The Foundry Connect transport and the safety rules below are our ow
    conflict check that protects the person's edits.
 3. Output is capped per call and marked `truncated`. Print summaries (`df.shape`,
    `df.head()`, counts), not whole tables, and never print credentials.
-4. `pip install` goes to the person's persistent library, so it survives restarts. Say what you
-   are installing before you do it.
+4. When the launch has a persistent package library, `pip install` goes there and survives
+   restarts. Say what you are installing before you do it. The library is added to a kernel the
+   first time you send it any operation, so if the person reports that an installed package does
+   not import in a session they opened on their own, send one `app_execute` call (for example
+   `op="cells"`) and ask them to try again.
 5. Public names in marimo have one owning cell. If a cell fails with multiply defined names,
    edit the owning cell or choose a new name.
 
@@ -70,25 +73,32 @@ The exact arguments of each operation and every result state are in
 
 ## Results you must handle
 
-- `succeeded`: the operation finished. Summarize the result.
+- `succeeded`: the operation finished. Summarize the result. After a run, the cell's output is
+  in the answer.
+  - With `applied: true`, `run: null` and `runState`/`runReason`: your `create_cell` or
+    `edit_cell` was saved, only the run that followed did not finish (it failed, was cancelled,
+    or its outcome is unknown). Never create or edit that cell again. Read `cells`, tell the
+    person, and use `run_cell` if it should still run.
 - `running`: the operation outlived the wait. Call `app_operation_status(launch_id, op_id)` to
   poll, with the same `op_id`. Do not send the operation again.
 - `failed`: the operation did not complete. Report `reason` plainly. Do not retry blindly.
 - `conflict`: one state with two reasons, and they mean different things. Read `reason`.
   - `reason: conflict`: the person changed the cell since you read it. Nothing was written.
     Show the person's current code and ask what to do. Do not retry on your own.
-  - `reason: conflict_after_write`: your write was applied, but the cell no longer holds it
-    because it changed afterwards. Tell the person your edit landed and was then replaced, show
-    the current code and ask. Do not overwrite it.
+  - `reason: conflict_after_write`: your write was applied, but someone else also changed the
+    cell at about the same time, so one change replaced the other (the person's typing may be the
+    one that was lost). Tell the person, show the current code from the answer and ask. Do not
+    write it again on your own.
 - `outcome_unknown`: you cannot tell whether the code ran. Never rerun it. Read `cells` and
   `status`, compare with what you intended, report what you see, and ask the person how to go on.
-- `cancelled` or an error with a reason: report it plainly. Do not retry blindly.
+- `cancelled` or an error with a reason: report it plainly. Do not retry blindly. After
+  `cancelled` or `outcome_unknown` on a cell change, read `cells` before anything else, because
+  the change may have landed. If `cells` answers `operation_in_progress`, an earlier operation is
+  still being closed: wait a minute and read again, or use `interrupt`.
 - `app_origin_not_isolated` (HTTP 409): nothing ran. Tell the person an administrator must
   enable isolated app origins. Do not retry.
 - `sessionRestarted: true`: the notebook kernel was replaced and its in memory variables are
   gone. Tell the person. Rerun setup cells (imports, data loading) only after asking.
-  One known case: the first call after **Take over** can report this although the kernel is
-  unchanged. Check with a small `execute` before assuming variables are lost.
 - `replayed: true`: the backend returned the stored answer for that `op_id`. Nothing ran twice.
 
 ## Runaway work and ending
