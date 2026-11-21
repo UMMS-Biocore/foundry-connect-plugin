@@ -41,6 +41,10 @@ this repository.
   It reads the brief, searches the raw sources and claims, gets every number and plot from a
   workspace job with a provenance block, and answers in labelled blocks with citations, or
   abstains when the evidence is missing.
+- **foundry-cluster-notebook**: starts a live marimo notebook as a job on your cluster, with data
+  roots you name mounted at `/mnt/<name>`, and works in it alongside you. It confirms before it
+  launches or runs code, reads cells before editing, stops to ask on a conflict, and never
+  reruns an operation whose outcome is unknown.
 
 ## Commands
 

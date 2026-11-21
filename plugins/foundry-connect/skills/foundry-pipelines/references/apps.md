@@ -30,3 +30,9 @@ live tool yet** — treat this as unconfirmed. In practice:
 → confirm: *"I'll launch CellxGene now — proceed?"*
 → `launch_app(app_id="<id>")` → return the launched app's link (or launch confirmation, per
 above) in chat.
+
+## Cluster notebooks
+
+For a live marimo notebook on the user's cluster (a job on their run environment, with data roots
+mounted at `/mnt/<name>`), do not use `launch_app`. Use the `foundry-cluster-notebook` skill. It
+covers `hpc_app_launch`, `app_execute` and the confirm-before-run rules.
