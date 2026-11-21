@@ -51,23 +51,26 @@ operation to finish and answers with its state. Use it for any `running` answer.
 ## Answer fields
 
 `op_id`, `op`, `state`, `reason`, `truncated`, `outputBytes`, `events`, `result`, `replayed`,
-`outputRetained`, `sessionRestarted`, and `next_step` for `running`, `outcome_unknown` and
-`conflict`.
+`outputRetained`, `sessionRestarted`, and `next_step` for `running`, `outcome_unknown`,
+`conflict`, and a saved change whose run did not finish (`result.applied`).
+After `run_cell`, or a create or edit with `run`, the result holds the cell with its output.
 Images in output arrive as attachments, and the text says `[image attached]`.
 
 | `state` | Meaning | You do |
 | --- | --- | --- |
 | `succeeded` | Finished. | Summarize the result. |
+| `succeeded` with `result.applied: true`, `run: null` | Your create or edit was saved; only the run after it did not finish (`runState`: `failed`, `cancelled` or `outcome_unknown`; `runReason` says why). | Never create or edit the cell again. Read `cells`, then `run_cell` if it should run. |
 | `running` | Still going after the wait. | Poll with `app_operation_status`. Do not resend. |
 | `failed` | Did not complete. | Report `reason`. Do not retry blindly. |
 | `conflict`, `reason: conflict` | The cell changed since your read. Nothing written. | Show their code, ask. |
-| `conflict`, `reason: conflict_after_write` | Your write was applied, then the cell changed. It no longer holds your code. | Say your edit landed and was replaced, show current code, ask. Do not overwrite. |
+| `conflict`, `reason: conflict_after_write` | Your write was applied, and someone else changed the cell at about the same time, so one replaced the other. | Say so, show the current code from the answer, ask. Do not write it again. |
 | `outcome_unknown` | Cannot tell if it ran. | Never rerun. Read `cells` and `status`, ask. |
-| `cancelled` | Stopped by interrupt, timeout, stop or revocation. | Report, ask before retrying. |
+| `cancelled` | Stopped by interrupt, timeout, stop or revocation. A cell change may already have landed. | Read `cells` first, report, ask before retrying. If `cells` answers `operation_in_progress`, wait a minute or use `interrupt`. |
 
-Known gap: a person's edit that reaches the server while your edit is in flight can be
-overwritten without a `conflict` answer. This is only possible after **Take over**. Read `cells`
-again after an edit when the person is typing in the notebook.
+A person's edit that reaches the notebook while your edit or delete is in flight is reported as
+`conflict_after_write`, with the cell as it is now. Text the person has typed but the notebook has
+not received yet cannot be seen, so read `cells` again before editing a cell the person is
+working in.
 
 ## Output cap
 
